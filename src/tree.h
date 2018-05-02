@@ -5,6 +5,6 @@
 
 void buildTree();
 
-int findNGB(const int ipart, const float hsml, int ngblist[NGBMAX]);
+int findNGB(const int ipart, const double hsml, int ngblist[NGBMAX]);
 
 #endif //TREENGB_TREE_H
