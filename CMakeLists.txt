@@ -10,6 +10,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 set(SOURCE_FILES
         src/tree.c
         src/main.c
-        src/particle.c)
+        src/particle.c
+        src/external/morton_utils.c)
 
 add_executable(TreeNGB ${SOURCE_FILES})
