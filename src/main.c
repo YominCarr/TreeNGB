@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
     printf("Build tree\n\n");
     struct Tree tree = buildTree(P, NPART, BOX);
 
+    free(tree.particleCounts);
     free(tree.leafs);
     free(P);
 

@@ -3,6 +3,7 @@
 
 struct Particle {
     double Pos[3];
+    int treeIndex;
 };
 
 struct Particle* createRandomParticles(const int N, const double BOX[3]);
