@@ -24,20 +24,47 @@ int findNGB(const int ipart, const double hsml, const struct Tree tree, int *ngb
 }
 
 void buildTreeSerial(struct Particle *P, const int npart, struct Tree *tree, const double *BOX) {
-    fprintf(stderr, "Implement 'buildTreeSerial'\n");
     for (int ipart = 0; ipart < npart; ++ipart) {
         const int l = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
         P[ipart].treeIndex = l;
         ++ tree->particleCounts[l];
         if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l] < MAXDEPTH)) {
-            splitNode(l, tree);
+            splitNode(l, tree, BOX);
         }
     }
 }
 
-void splitNode(const int l, struct Tree *tree) {
+void splitNode(const int l, struct Tree *tree, const double BOX[3]) {
     fprintf(stderr, "Implement 'splitNode'\n");
+    const KEY parent = tree->leafs[l];
+    double pX, pY, pZ; //Assume these are the corner with the smallest coord
+    key2Coord(parent, &pX, &pY, &pZ, BOX);
+    const int parentLevel = key2Depth(parent);
+
+    double newSize[3];
+    for (int i = 0; i < 3; ++i) {
+        newSize[i] = BOX[i] / (2 << parentLevel);
+    }
+
+    //Create 8 new nodes, save one in l and the others in Tree.leafCount (+0,1,2,...)
+    int save[8] = {l, tree->leafCount, tree->leafCount+1, tree->leafCount+2, tree->leafCount+3,
+                   tree->leafCount+4, tree->leafCount+5, tree->leafCount+6};
+    for (int i = 0, c = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            for (int k = 0; k < 2; ++k, ++c) {
+                const double x = pX + i * newSize[0];
+                const double y = pY + j * newSize[1];
+                const double z = pZ + k * newSize[2];
+                const KEY node = coord2Key(x, y, z, BOX);
+                const int s = save[c];
+                tree->leafs[s] = node;
+                //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
+                //@todo how do I get all particles inside node in a quick way? Need that for ngb search also
+            }
+        }
+    }
+    tree->leafs += 7;
 }
 
 int findLeafForPosition(const double x, const double y, const double z, const struct Tree *tree, const double BOX[3])

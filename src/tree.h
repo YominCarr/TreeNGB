@@ -28,7 +28,7 @@ void buildTreeSerial(struct Particle *P, const int npart, struct Tree *tree, con
 int findLeafForPosition(const double x, const double y, const double z, const struct Tree *tree, const double BOX[3]);
 bool coordInsideNode(const double x, const double y, const double z, const KEY key, const double BOX[3]);
 
-void splitNode(const int l, struct Tree *tree);
+void splitNode(const int l, struct Tree *tree, const double BOX[3]);
 
 KEY coord2Key(const double x, const double y, const double z, const double BOX[3]);
 void key2Coord(const KEY key, double *x, double *y, double *z, const double BOX[3]);
