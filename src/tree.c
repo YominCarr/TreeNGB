@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <math.h>
 #include "tree.h"
-#include "morton.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -84,15 +84,29 @@ int findLeafForPosition(const double x, const double y, const double z, const Tr
 }
 
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double *BOX) {
-    fprintf(stderr, "Implement 'coordInsideNode'\n");
-    return 0;
+    double sideLength[3];
+    for (int i = 0; i < 3; ++i) {
+        sideLength[i] = BOX[i] / pow(2.0, key2Depth(key));
+    }
+
+    if (x < key.x || x > key.x + sideLength[0]) {
+        return false;
+    }
+    if (y < key.y || y > key.y + sideLength[1]) {
+        return false;
+    }
+    if (z < key.z || z > key.z + sideLength[2]) {
+        return false;
+    }
+
+    return true;
 }
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
     //@todo also set particle count here? maybe already done
     Morton leaf, oldLeaf;
     oldLeaf.key = 0;
-    int leafIndex;
+    int leafIndex = 0;
 
     for (int ipart = 0; ipart < npart; ++ipart) {
         leaf = particles[ipart].leaf;
@@ -111,7 +125,13 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
 
 int getIndexOfLeaf(Morton leaf, Tree* tree) {
     fprintf(stderr, "Implement 'getIndexOfLeaf'\n");
-    return 0;
+    for (int i = 0; i < tree->leafCount; ++i) {
+        if (tree->leafs[i].key == leaf.key) {
+            return i;
+        }
+    }
+    fprintf(stderr, "Leaf %lu unknown, aborting...", leaf.key);
+    exit(1);
 }
 
 void freeTreeContents(Tree *tree) {

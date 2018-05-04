@@ -15,3 +15,5 @@ set(SOURCE_FILES
         src/external/morton_utils.c)
 
 add_executable(TreeNGB ${SOURCE_FILES})
+
+target_link_libraries(TreeNGB m)
