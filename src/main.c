@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     struct Particle *P = createRandomParticles(NPART, BOX);
 
     printf("Build tree\n\n");
-    struct Tree tree = buildTree(P, NPART, BOX);
+    Tree tree = buildTree(P, NPART, BOX);
 
     free(tree.particleCounts);
     free(tree.leafs);

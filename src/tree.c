@@ -4,10 +4,10 @@
 #include "tree.h"
 #include "external/morton_utils.h"
 
-struct Tree buildTree(struct Particle *P, const int npart, const double BOX[3]) {
+Tree buildTree(struct Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
 
-    struct Tree tree;
+    Tree tree;
     tree.leafs = malloc(MAXLEAVES * sizeof(KEY));
     tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
     tree.leafCount = 0;
@@ -18,12 +18,12 @@ struct Tree buildTree(struct Particle *P, const int npart, const double BOX[3]) 
     return tree;
 }
 
-int findNGB(const int ipart, const double hsml, const struct Tree tree, int *ngblist) {
+int findNGB(const int ipart, const double hsml, const Tree tree, int *ngblist) {
     fprintf(stderr, "Implement 'findNGB'\n");
     return 0;
 }
 
-void buildTreeSerial(struct Particle *P, const int npart, struct Tree *tree, const double *BOX) {
+void buildTreeSerial(struct Particle *P, const int npart, Tree *tree, const double *BOX) {
     for (int ipart = 0; ipart < npart; ++ipart) {
         const int l = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
@@ -35,7 +35,7 @@ void buildTreeSerial(struct Particle *P, const int npart, struct Tree *tree, con
     }
 }
 
-void splitNode(const int l, struct Tree *tree, const double BOX[3]) {
+void splitNode(const int l, Tree *tree, const double BOX[3]) {
     fprintf(stderr, "Implement 'splitNode'\n");
     const KEY parent = tree->leafs[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
@@ -67,7 +67,7 @@ void splitNode(const int l, struct Tree *tree, const double BOX[3]) {
     tree->leafs += 7;
 }
 
-int findLeafForPosition(const double x, const double y, const double z, const struct Tree *tree, const double BOX[3])
+int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3])
 {
     for (int l = 0; l < tree->leafCount; ++l) {
         if (coordInsideNode(x, y, z, tree->leafs[l], BOX)) {
@@ -115,6 +115,6 @@ double translateCoordToDouble(const COORD c, const double box) {
     return 0;
 }
 
-void sortTree(struct Tree *tree) {
+void sortTree(Tree *tree) {
     fprintf(stderr, "Implement 'sortTree'\n");
 }
