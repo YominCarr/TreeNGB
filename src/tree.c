@@ -2,13 +2,12 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include "tree.h"
-#include "external/morton_utils.h"
 
 Tree buildTree(struct Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
 
     Tree tree;
-    tree.leafs = malloc(MAXLEAVES * sizeof(KEY));
+    tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
     tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
     tree.leafCount = 0;
 
@@ -29,7 +28,7 @@ void buildTreeSerial(struct Particle *P, const int npart, Tree *tree, const doub
 
         P[ipart].treeIndex = l;
         ++ tree->particleCounts[l];
-        if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l] < MAXDEPTH)) {
+        if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l]) < MAXDEPTH) {
             splitNode(l, tree, BOX);
         }
     }
@@ -37,7 +36,7 @@ void buildTreeSerial(struct Particle *P, const int npart, Tree *tree, const doub
 
 void splitNode(const int l, Tree *tree, const double BOX[3]) {
     fprintf(stderr, "Implement 'splitNode'\n");
-    const KEY parent = tree->leafs[l];
+    const Morton parent = tree->leafs[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
     const int parentLevel = key2Depth(parent);
@@ -56,7 +55,7 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const double x = pX + i * newSize[0];
                 const double y = pY + j * newSize[1];
                 const double z = pZ + k * newSize[2];
-                const KEY node = coord2Key(x, y, z, BOX);
+                const Morton node = coord2Key(x, y, z, BOX);
                 const int s = save[c];
                 tree->leafs[s] = node;
                 //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
@@ -78,40 +77,8 @@ int findLeafForPosition(const double x, const double y, const double z, const Tr
     exit(1);
 }
 
-bool coordInsideNode(const double x, const double y, const double z, const KEY key, const double *BOX) {
+bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double *BOX) {
     fprintf(stderr, "Implement 'coordInsideNode'\n");
-    return 0;
-}
-
-KEY coord2Key(const double x, const double y, const double z, const double BOX[3]) {
-    const COORD xT = translateCoordFromDouble(x, BOX[0]);
-    const COORD yT = translateCoordFromDouble(y, BOX[1]);
-    const COORD zT = translateCoordFromDouble(z, BOX[2]);
-
-    return coord2morton3D_64(xT, yT, zT);
-}
-
-void key2Coord(const KEY key, double *x, double *y, double *z, const double BOX[3]) {
-    COORD xT, yT, zT;
-    morton2coord3D_64(key, &xT, &yT, &zT);
-
-    *x = translateCoordToDouble(xT, BOX[0]);
-    *y = translateCoordToDouble(yT, BOX[1]);
-    *z = translateCoordToDouble(zT, BOX[2]);
-}
-
-int key2Depth(const KEY key) {
-    fprintf(stderr, "Implement 'key2Depth'\n");
-    return -1;
-}
-
-COORD translateCoordFromDouble(const double c, const double box) {
-    fprintf(stderr, "Implement 'translateCoordFromDouble'\n");
-    return 0;
-}
-
-double translateCoordToDouble(const COORD c, const double box) {
-    fprintf(stderr, "Implement 'translateCoordToDouble'\n");
     return 0;
 }
 

@@ -11,6 +11,7 @@ set(SOURCE_FILES
         src/tree.c
         src/main.c
         src/particle.c
+        src/morton.c
         src/external/morton_utils.c)
 
 add_executable(TreeNGB ${SOURCE_FILES})
