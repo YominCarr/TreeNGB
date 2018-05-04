@@ -34,6 +34,7 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
 
         //@todo required every time?
         sortParticlesByKey(P, npart);
+        //@todo actually if I resort particles then I invalidate firstParticle[...] for all other nodes!
 
         if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l]) < MAXDEPTH) {
             splitNode(l, tree, BOX);
@@ -65,7 +66,6 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const Morton node = coord2Key(x, y, z, BOX);
                 const int s = save[c];
                 tree->leafs[s] = node;
-                tree->leafs[s].assigned = 1;
                 //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
                 //@todo use firstParticle field assuming particles are sorted
             }

@@ -34,15 +34,7 @@ void sortParticlesByKey(Particle *particles, const int N) {
 }
 
 bool compareParticles(Particle *particles, int i, int j) {
-    //@todo check if this is the correct way round
-    if (!particles[i].leaf.assigned) {
-        return true;
-    } else if (!particles[j].leaf.assigned) {
-        return false;
-    } else {
-        //@todo is that really valid for how I conceptualised the key's structure now?
-        return particles[i].leaf.key > particles[j].leaf.key;
-    }
+    return particles[i].leaf.key > particles[j].leaf.key;
 }
 
 void swapParticles(Particle *particles, int i, int j) {
