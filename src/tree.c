@@ -43,8 +43,10 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
     setParticleRangesInTree(P, npart, tree);
 }
 
+//@todo broken!
 void splitNode(const int l, Tree *tree, const double BOX[3]) {
     fprintf(stderr, "Implement 'splitNode'\n");
+
     const Morton parent = tree->leafs[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
@@ -67,9 +69,10 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const Morton node = coord2Key(x, y, z, BOX);
                 const int s = save[c];
                 tree->leafs[s] = node;
-                //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
-                //@todo use firstParticle field assuming particles are sorted (actually this is done later)
-                //@todo how do I know which particles have to be put in which subnode?
+                //@todo assign particles to 8 new nodes and set tree->particleCounts[s] (or maybe not)
+                //@todo use firstParticle field assuming particles are sorted (actually this is done later now)
+                //@todo otherwise I need to resort every step - no?
+                //@todo but now, how do I know which particles have to be put in which subnode???
             }
         }
     }
