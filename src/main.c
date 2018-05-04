@@ -24,13 +24,12 @@ int main(int argc, char *argv[]) {
     double BOX[3] = {1.0, 1.0, 1.0};
     printf("Creating %d random particles inside box of %g x %g x %g\n\n", NPART, BOX[0], BOX[1], BOX[2]);
 
-    struct Particle *P = createRandomParticles(NPART, BOX);
+    Particle *P = createRandomParticles(NPART, BOX);
 
     printf("Build tree\n\n");
     Tree tree = buildTree(P, NPART, BOX);
 
-    free(tree.particleCounts);
-    free(tree.leafs);
+    freeTreeContents(&tree);
     free(P);
 
     return 0;

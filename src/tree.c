@@ -2,12 +2,15 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include "tree.h"
+#include "particle.h"
+#include "morton.h"
 
-Tree buildTree(struct Particle *P, const int npart, const double BOX[3]) {
+Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
 
     Tree tree;
     tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
+    tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
     tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
     tree.leafCount = 0;
 
@@ -22,12 +25,16 @@ int findNGB(const int ipart, const double hsml, const Tree tree, int *ngblist) {
     return 0;
 }
 
-void buildTreeSerial(struct Particle *P, const int npart, Tree *tree, const double *BOX) {
+void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX) {
     for (int ipart = 0; ipart < npart; ++ipart) {
         const int l = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
-        P[ipart].treeIndex = l;
+        P[ipart].leaf = tree->leafs[l];
         ++ tree->particleCounts[l];
+
+        //@todo required every time?
+        sortParticlesByKey(P, npart);
+
         if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l]) < MAXDEPTH) {
             splitNode(l, tree, BOX);
         }
@@ -58,8 +65,9 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const Morton node = coord2Key(x, y, z, BOX);
                 const int s = save[c];
                 tree->leafs[s] = node;
+                tree->leafs[s].assigned = 1;
                 //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
-                //@todo how do I get all particles inside node in a quick way? Need that for ngb search also
+                //@todo use firstParticle field assuming particles are sorted
             }
         }
     }
@@ -84,4 +92,10 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
 
 void sortTree(Tree *tree) {
     fprintf(stderr, "Implement 'sortTree'\n");
+}
+
+void freeTreeContents(Tree *tree) {
+    free(tree->particleCounts);
+    free(tree->firstParticle);
+    free(tree->leafs);
 }

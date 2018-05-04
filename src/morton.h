@@ -9,7 +9,8 @@ typedef union {
     uint64_t key;
     struct { //Partitioning to allow the deepest level: max 19
         int x:19, y:19, z:19;
-        int level:7;
+        int level:6;
+        int assigned:1;
     };
 } Morton;
 
