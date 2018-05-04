@@ -11,8 +11,8 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
     tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
     tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
-    tree.leafCount = 0;
 
+    createRootNode(&tree);
     buildTreeSerial(P, npart, &tree, BOX);
 
     return tree;
@@ -21,6 +21,10 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
 int findNGB(const int ipart, const double hsml, const Tree tree, int *ngblist) {
     fprintf(stderr, "Implement 'findNGB'\n");
     return 0;
+}
+
+void createRootNode(Tree *tree) {
+    tree->leafCount = 1;
 }
 
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX) {

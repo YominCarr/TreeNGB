@@ -7,9 +7,10 @@
 #include "particle.h"
 
 #define NGBMAX 1000
-#define MAXDEPTH 10 //More goes beyond integer in MAXLEAVES
-#define MAXLEAVES (2 << (3 * MAXDEPTH))
+#define MAXDEPTH 9 //More goes beyond uint in MAXLEAVES * sizeof(Morton))
+#define MAXLEAVES (1 << (3 * MAXDEPTH))
 #define MAXLEAFSIZE 5 //200^(1/3) rounded down
+//@todo looks like maybe morton keys can be even only 32 instead 64 of size
 
 typedef struct {
     Morton *leafs;
@@ -23,6 +24,7 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]);
 int findNGB(const int ipart, const double hsml, const Tree tree, int ngblist[NGBMAX]);
 
 
+void createRootNode(Tree *tree);
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[3]);
 
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
