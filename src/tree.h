@@ -30,7 +30,8 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
 
 void splitNode(const int l, Tree *tree, const double BOX[3]);
 
-void sortTree(Tree *tree);
+void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
+int getIndexOfLeaf(Morton leaf, Tree* tree);
 
 void freeTreeContents(Tree *tree);
 

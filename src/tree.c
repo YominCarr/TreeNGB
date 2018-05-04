@@ -2,7 +2,6 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include "tree.h"
-#include "particle.h"
 #include "morton.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
@@ -15,7 +14,6 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     tree.leafCount = 0;
 
     buildTreeSerial(P, npart, &tree, BOX);
-    sortTree(&tree);
 
     return tree;
 }
@@ -32,14 +30,13 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
         P[ipart].leaf = tree->leafs[l];
         ++ tree->particleCounts[l];
 
-        //@todo required every time?
-        sortParticlesByKey(P, npart);
-        //@todo actually if I resort particles then I invalidate firstParticle[...] for all other nodes!
-
         if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l]) < MAXDEPTH) {
             splitNode(l, tree, BOX);
         }
     }
+
+    sortParticlesByKey(P, npart);
+    setParticleRangesInTree(P, npart, tree);
 }
 
 void splitNode(const int l, Tree *tree, const double BOX[3]) {
@@ -67,7 +64,8 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const int s = save[c];
                 tree->leafs[s] = node;
                 //@todo assign particles to 8 new nodes and set tree->particleCounts[s]
-                //@todo use firstParticle field assuming particles are sorted
+                //@todo use firstParticle field assuming particles are sorted (actually this is done later)
+                //@todo how do I know which particles have to be put in which subnode?
             }
         }
     }
@@ -90,8 +88,30 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
     return 0;
 }
 
-void sortTree(Tree *tree) {
-    fprintf(stderr, "Implement 'sortTree'\n");
+void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
+    //@todo also set particle count here? maybe already done
+    Morton leaf, oldLeaf;
+    oldLeaf.key = 0;
+    int leafIndex;
+
+    for (int ipart = 0; ipart < npart; ++ipart) {
+        leaf = particles[ipart].leaf;
+
+        if (ipart == 0 || leaf.key != oldLeaf.key) {
+            leafIndex = getIndexOfLeaf(leaf, tree);
+            oldLeaf = leaf;
+
+            tree->firstParticle[leafIndex] = ipart;
+            tree->particleCounts[leafIndex] = 1;
+        } else {
+            ++ tree->particleCounts[leafIndex];
+        }
+    }
+}
+
+int getIndexOfLeaf(Morton leaf, Tree* tree) {
+    fprintf(stderr, "Implement 'getIndexOfLeaf'\n");
+    return 0;
 }
 
 void freeTreeContents(Tree *tree) {
