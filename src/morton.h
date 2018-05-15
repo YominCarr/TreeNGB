@@ -14,7 +14,7 @@ typedef union {
     struct { //Partitioning to allow the deepest level: max 19
         int x:19, y:19, z:19;
         int level:7;
-    };
+    } __attribute__ ((__packed__));
 } Morton;
 
 #define MAXLEVEL 19

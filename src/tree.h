@@ -25,6 +25,7 @@ typedef struct {
 } Tree;
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]);
+Tree initalizeTree();
 
 int findNGB(const int ipart, const double hsml, const Tree tree, int ngblist[NGBMAX]);
 

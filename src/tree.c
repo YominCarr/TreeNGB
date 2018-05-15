@@ -2,18 +2,29 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "tree.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
 
-    Tree tree;
-    tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
-    tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
-    tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
+    Tree tree = initalizeTree();
 
     createRootNode(&tree, BOX);
     buildTreeSerial(P, npart, &tree, BOX);
+
+    return tree;
+}
+
+Tree initalizeTree() {
+    Tree tree;
+
+    tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
+    memset(tree.leafs, 0, MAXLEAVES * sizeof(Morton));
+    tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
+    memset(tree.firstParticle, 0, MAXLEAVES * sizeof(Morton));
+    tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
+    memset(tree.particleCounts, 0, MAXLEAVES * sizeof(Morton));
 
     return tree;
 }
