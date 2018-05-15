@@ -12,6 +12,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O0 -Wall -fopenmp")
 message(STATUS "Compiling with ${CMAKE_C_FLAGS}")
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 add_subdirectory (src)
 add_subdirectory (external)

@@ -1,6 +1,10 @@
 #ifndef TREENGB_TREE_H
 #define TREENGB_TREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "morton.h"
@@ -38,5 +42,9 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
 int getIndexOfLeaf(Morton leaf, Tree* tree);
 
 void freeTreeContents(Tree *tree);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //TREENGB_TREE_H

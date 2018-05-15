@@ -1,6 +1,10 @@
 #ifndef TREENGB_MORTON_H
 #define TREENGB_MORTON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 typedef uint32_t COORD;
@@ -21,5 +25,9 @@ int key2Depth(const Morton key);
 
 COORD translateCoordFromDouble(const double c, const double box);
 double translateCoordToDouble(const COORD c, const double box);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //TREENGB_MORTON_H

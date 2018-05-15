@@ -1,6 +1,10 @@
 #ifndef TREENGB_PARTICLE_H
 #define TREENGB_PARTICLE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include "morton.h"
 
@@ -15,5 +19,9 @@ void sortParticlesByKey(Particle* particles, const int N);
 
 bool compareParticles(Particle *particles, int i, int j);
 void swapParticles(Particle *particles, int i, int j);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //TREENGB_PARTICLE_H

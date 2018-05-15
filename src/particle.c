@@ -3,6 +3,8 @@
 #include "omp.h"
 #include "proto.h"
 
+struct OpenMP_infos Omp;
+
 Particle *createRandomParticles(const int N, const double BOX[3]) {
     Particle* particles = malloc(N * sizeof(Particle));
 

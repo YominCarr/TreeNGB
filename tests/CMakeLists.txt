@@ -6,8 +6,16 @@ include_directories (
         ${CMAKE_SOURCE_DIR}/external/gtest-1.7.0/
 )
 
+file(GLOB SOURCE_FILES
+        ../src/tree.c
+        ../src/particle.c
+        ../src/morton.c)
+
 file(GLOB TEST_SOURCES
+        testMorton.cpp
 )
 list(APPEND TEST_SOURCES "allTests.cpp")
 add_executable (TreeNGB-tests ${SOURCE_FILES} ${TEST_SOURCES})
 target_link_libraries (TreeNGB-tests gmock gtest)
+
+message(STATUS ${SOURCE_FILES})
