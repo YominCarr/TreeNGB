@@ -9,13 +9,14 @@
 #define NGBMAX 1000
 #define MAXDEPTH 9 //More goes beyond uint in MAXLEAVES * sizeof(Morton))
 #define MAXLEAVES (1 << (3 * MAXDEPTH))
-#define MAXLEAFSIZE 5 //200^(1/3) rounded down
+#define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 //@todo looks like maybe morton keys can be even only 32 instead 64 of size
 
 typedef struct {
     Morton *leafs;
     int *firstParticle; //Assume particles are sorted then leaf i contains particles
     int *particleCounts; //firstParticle[i] -> firstParticle[i] + particleCounts[i] - 1
+    //@todo do I actually need to count if it's either 0 or 1?
     int leafCount;
 } Tree;
 
@@ -30,7 +31,8 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]);
 
-void splitNode(const int l, Tree *tree, const double BOX[3]);
+void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]);
+int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]);
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
 int getIndexOfLeaf(Morton leaf, Tree* tree);

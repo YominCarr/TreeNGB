@@ -29,13 +29,16 @@ void createRootNode(Tree *tree) {
 
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX) {
     for (int ipart = 0; ipart < npart; ++ipart) {
-        const int l = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
+        int leaf = assignParticleToTree(P, ipart, tree, BOX);
 
-        P[ipart].leaf = tree->leafs[l];
-        ++ tree->particleCounts[l];
+        while (tree->particleCounts[leaf] > MAXLEAFSIZE) {
+            if (key2Depth(tree->leafs[leaf]) == MAXDEPTH) {
+                fprintf(stderr, "Trying to refine tree beyond capacity, aborting...");
+                exit(1);
+            }
 
-        if (tree->particleCounts[l] > MAXLEAFSIZE && key2Depth(tree->leafs[l]) < MAXDEPTH) {
-            splitNode(l, tree, BOX);
+            splitNode(P, leaf, tree, BOX);
+            leaf = assignParticleToTree(P, ipart, tree, BOX);
         }
     }
 
@@ -43,14 +46,19 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
     setParticleRangesInTree(P, npart, tree);
 }
 
-//@todo broken!
-void splitNode(const int l, Tree *tree, const double BOX[3]) {
+void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
     fprintf(stderr, "Implement 'splitNode'\n");
 
     const Morton parent = tree->leafs[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
     const int parentLevel = key2Depth(parent);
+
+    //Particle to redistribute
+    const int epart = tree->firstParticle[l];
+
+    //Clean node spot which will be reused
+    tree->particleCounts[l] = 0;
 
     double newSize[3];
     for (int i = 0; i < 3; ++i) {
@@ -67,16 +75,28 @@ void splitNode(const int l, Tree *tree, const double BOX[3]) {
                 const double y = pY + j * newSize[1];
                 const double z = pZ + k * newSize[2];
                 const Morton node = coord2Key(x, y, z, BOX);
+
                 const int s = save[c];
                 tree->leafs[s] = node;
-                //@todo assign particles to 8 new nodes and set tree->particleCounts[s] (or maybe not)
-                //@todo use firstParticle field assuming particles are sorted (actually this is done later now)
-                //@todo otherwise I need to resort every step - no?
-                //@todo but now, how do I know which particles have to be put in which subnode???
+
+                if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
+                    P[epart].leaf = node;
+                    tree->particleCounts[s] = 1;
+                }
             }
         }
     }
     tree->leafs += 7;
+}
+
+
+int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]) {
+    const int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
+
+    P[ipart].leaf = tree->leafs[leaf];
+    ++ tree->particleCounts[leaf];
+
+    return leaf;
 }
 
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3])
