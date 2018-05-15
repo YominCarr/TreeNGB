@@ -43,12 +43,12 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
     }
 
     sortParticlesByKey(P, npart);
+    //After resorting particles we need to readjust the tree
+    // @todo maybe absorb this directly into the resorting?
     setParticleRangesInTree(P, npart, tree);
 }
 
 void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
-    fprintf(stderr, "Implement 'splitNode'\n");
-
     const Morton parent = tree->leafs[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
@@ -130,7 +130,6 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
 }
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
-    //@todo also set particle count here? maybe already done
     Morton leaf, oldLeaf;
     oldLeaf.key = 0;
     int leafIndex = 0;
@@ -143,15 +142,11 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
             oldLeaf = leaf;
 
             tree->firstParticle[leafIndex] = ipart;
-            tree->particleCounts[leafIndex] = 1;
-        } else {
-            ++ tree->particleCounts[leafIndex];
         }
     }
 }
 
 int getIndexOfLeaf(Morton leaf, Tree* tree) {
-    fprintf(stderr, "Implement 'getIndexOfLeaf'\n");
     for (int i = 0; i < tree->leafCount; ++i) {
         if (tree->leafs[i].key == leaf.key) {
             return i;
