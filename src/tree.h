@@ -12,7 +12,8 @@ extern "C" {
 
 #define NGBMAX 1000
 #define MAXDEPTH 9 //More goes beyond uint in MAXLEAVES * sizeof(Morton))
-#define MAXLEAVES (1 << (3 * MAXDEPTH))
+#define MAXLEAFS (1 << (3 * MAXDEPTH))
+// @todo actually the tree may be deeper at some points, since we are filling up from the left
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 //@todo looks like maybe morton keys can be even only 32 instead 64 of size
 

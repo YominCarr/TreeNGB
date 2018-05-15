@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include "tree.h"
+#include "morton.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -19,12 +20,14 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
 Tree initalizeTree() {
     Tree tree;
 
-    tree.leafs = malloc(MAXLEAVES * sizeof(Morton));
-    memset(tree.leafs, 0, MAXLEAVES * sizeof(Morton));
-    tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
-    memset(tree.firstParticle, 0, MAXLEAVES * sizeof(Morton));
-    tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
-    memset(tree.particleCounts, 0, MAXLEAVES * sizeof(Morton));
+    tree.leafs = malloc(MAXLEAFS * sizeof(Morton));
+    memset(tree.leafs, 0, MAXLEAFS * sizeof(Morton));
+    tree.firstParticle = malloc(MAXLEAFS * sizeof(int));
+    memset(tree.firstParticle, 0, MAXLEAFS * sizeof(int));
+    tree.particleCounts = malloc(MAXLEAFS * sizeof(int));
+    memset(tree.particleCounts, 0, MAXLEAFS * sizeof(int));
+
+    tree.leafCount = 0;
 
     return tree;
 }
@@ -89,7 +92,8 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
                 const double x = pX + i * newSize[0];
                 const double y = pY + j * newSize[1];
                 const double z = pZ + k * newSize[2];
-                const Morton node = coord2Key(x, y, z, BOX);
+                Morton node = coord2Key(x, y, z, BOX);
+                node.level = parentLevel + 1;
 
                 const int s = save[c];
                 tree->leafs[s] = node;
