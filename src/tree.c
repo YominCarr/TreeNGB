@@ -12,7 +12,7 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     tree.firstParticle = malloc(MAXLEAVES * sizeof(int));
     tree.particleCounts = malloc(MAXLEAVES * sizeof(int));
 
-    createRootNode(&tree);
+    createRootNode(&tree, BOX);
     buildTreeSerial(P, npart, &tree, BOX);
 
     return tree;
@@ -23,8 +23,12 @@ int findNGB(const int ipart, const double hsml, const Tree tree, int *ngblist) {
     return 0;
 }
 
-void createRootNode(Tree *tree) {
+void createRootNode(Tree *tree, const double *BOX) {
     tree->leafCount = 1;
+
+    const Morton node = coord2Key(0.0, 0.0, 0.0, BOX);
+    tree->leafs[0] = node;
+
 }
 
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX) {

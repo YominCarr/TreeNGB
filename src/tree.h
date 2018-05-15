@@ -25,7 +25,7 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]);
 int findNGB(const int ipart, const double hsml, const Tree tree, int ngblist[NGBMAX]);
 
 
-void createRootNode(Tree *tree);
+void createRootNode(Tree *tree, const double *BOX);
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[3]);
 
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
