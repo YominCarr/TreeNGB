@@ -101,7 +101,7 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
             }
         }
     }
-    tree->leafs += 7;
+    tree->leafCount += 7;
 }
 
 
