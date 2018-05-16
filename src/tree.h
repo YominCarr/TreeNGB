@@ -36,6 +36,7 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[
 
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]);
+void getNodeSize(double* sideLength, const Morton key, const double BOX[3]);
 
 void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]);
 int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]);

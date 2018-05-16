@@ -128,21 +128,28 @@ int findLeafForPosition(const double x, const double y, const double z, const Tr
 
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double *BOX) {
     double sideLength[3];
-    for (int i = 0; i < 3; ++i) {
-        sideLength[i] = BOX[i] / pow(2.0, key2Depth(key));
-    }
+    getNodeSize(sideLength, key, BOX);
 
-    if (x < key.x || x > key.x + sideLength[0]) {
+    double kx, ky, kz;
+    key2Coord(key, &kx, &ky, &kz, BOX);
+
+    if (x < kx || x > kx + sideLength[0]) {
         return false;
     }
-    if (y < key.y || y > key.y + sideLength[1]) {
+    if (y < ky || y > ky + sideLength[1]) {
         return false;
     }
-    if (z < key.z || z > key.z + sideLength[2]) {
+    if (z < kz || z > kz + sideLength[2]) {
         return false;
     }
 
     return true;
+}
+
+void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
+    for (int i = 0; i < 3; ++i) {
+        sideLength[i] = BOX[i] / pow(2.0, key2Depth(key));
+    }
 }
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {

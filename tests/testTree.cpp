@@ -46,6 +46,24 @@ TEST_F(TestTree, treeInitialization)
     );
 }
 
+TEST_F(TestTree, nodeSizeCalculation) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    double sideLength[3];
+    Morton key;
+
+    key.level = 0;
+    getNodeSize(sideLength, key, BOX);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(BOX[i], sideLength[i]) << " at i = " << i;
+    }
+
+    key.level = 1;
+    getNodeSize(sideLength, key, BOX);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(0.5*BOX[i], sideLength[i]) << " at i = " << i;
+    }
+}
+
 TEST_F(TestTree, particleInRootNode) {
     const double BOX[3] = {1.0, 1.0, 1.0};
 
@@ -55,6 +73,18 @@ TEST_F(TestTree, particleInRootNode) {
     const double x = drand48(), y = drand48(), z = drand48();
 
     bool inNode = coordInsideNode(x, y, z, tree.leafs[0], BOX);
+    ASSERT_TRUE(inNode);
+}
+
+TEST_F(TestTree, particleInNode) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Morton node = coord2Key(0.0, 0.5, 0.0, BOX);
+    node.level = 1;
+
+    const double x = 0.2, y = 0.7, z = 0.3;
+
+    bool inNode = coordInsideNode(x, y, z, node, BOX);
     ASSERT_TRUE(inNode);
 }
 
