@@ -12,10 +12,10 @@ protected:
 
 void TestMorton::expectZero(Morton& morton, const char* stage) {
     EXPECT_EQ(0u, morton.key) << stage;
-    EXPECT_EQ(0, morton.x) << stage;
-    EXPECT_EQ(0, morton.y) << stage;
-    EXPECT_EQ(0, morton.z) << stage;
-    EXPECT_EQ(0, morton.level) << stage;
+    EXPECT_EQ(0u, morton.x) << stage;
+    EXPECT_EQ(0u, morton.y) << stage;
+    EXPECT_EQ(0u, morton.z) << stage;
+    EXPECT_EQ(0u, morton.level) << stage;
 }
 
 TEST_F(TestMorton, keySize) {
@@ -36,7 +36,7 @@ TEST_F(TestMorton, translateCoordDoubleLoop) {
     ASSERT_NEAR(d, d2, 0.0001*d);
 }
 
-TEST_F(TestMorton, structAssignement) {
+TEST_F(TestMorton, zeroStructAssignement) {
     Morton morton;
     //Not zeroed after construnction!
     //this->expectZero(morton, "after constructor");
@@ -58,17 +58,19 @@ TEST_F(TestMorton, halfSizeNode2Key) {
     const double x = 0.0, y = 0.0, z = 0.5 * BOX[2];
 
     Morton node = coord2Key(x, y, z, BOX);
+    double x2, y2, z2;
+    key2Coord(node, &x2, &y2, &z2, BOX);
 
-    ASSERT_EQ(x, node.x);
-    ASSERT_EQ(y, node.y);
-    ASSERT_EQ(z, node.z);
+    ASSERT_EQ(x, x2);
+    ASSERT_EQ(y, y2);
+    ASSERT_EQ(z, z2);
 
     const double level = 1;
     node.level = level;
 
-    ASSERT_EQ(x, node.x);
-    ASSERT_EQ(y, node.y);
-    ASSERT_EQ(z, node.z);
+    ASSERT_EQ(x, x2);
+    ASSERT_EQ(y, y2);
+    ASSERT_EQ(z, z2);
     ASSERT_EQ(level, node.level);
 }
 

@@ -12,8 +12,8 @@ typedef uint32_t COORD;
 typedef union {
     uint64_t key;
     struct { //Partitioning to allow the deepest level: max 19
-        int x:19, y:19, z:19;
-        int level:7;
+        unsigned int x:19, y:19, z:19;
+        unsigned int level:7;
     } __attribute__ ((__packed__));
 } Morton;
 

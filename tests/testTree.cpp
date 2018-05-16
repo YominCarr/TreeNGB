@@ -85,11 +85,14 @@ TEST_F(TestTree, splitRootNode) {
     for (int i = 0, l = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k, ++l) {
-                ASSERT_EQ(i * d[0], tree.leafs[l].x) << " at l = " << l;
-                ASSERT_EQ(j * d[1], tree.leafs[l].y) << " at l = " << l;
-                ASSERT_EQ(k * d[2], tree.leafs[l].z) << " at l = " << l;
+                double x, y, z;
+                key2Coord(tree.leafs[0], &x, &y, &z, BOX);
 
-                ASSERT_EQ(1, tree.leafs[l].level) << " at l = " << l;
+                ASSERT_EQ(i * d[0], x) << " at l = " << l;
+                ASSERT_EQ(j * d[1], y) << " at l = " << l;
+                ASSERT_EQ(k * d[2], z) << " at l = " << l;
+
+                ASSERT_EQ(1u, tree.leafs[l].level) << " at l = " << l;
 
                 foundParticles += tree.particleCounts[l];
                 ASSERT_EQ(0, tree.firstParticle[l]) << " at l = " << l;
