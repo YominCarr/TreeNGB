@@ -53,7 +53,26 @@ TEST_F(TestMorton, structAssignement) {
     this->expectZero(morton, "after bitfield assignment");
 }
 
-TEST_F(TestMorton, cordKeyLoop) {
+TEST_F(TestMorton, halfSizeNode2Key) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    const double x = 0.0, y = 0.0, z = 0.5 * BOX[2];
+
+    Morton node = coord2Key(x, y, z, BOX);
+
+    ASSERT_EQ(x, node.x);
+    ASSERT_EQ(y, node.y);
+    ASSERT_EQ(z, node.z);
+
+    const double level = 1;
+    node.level = level;
+
+    ASSERT_EQ(x, node.x);
+    ASSERT_EQ(y, node.y);
+    ASSERT_EQ(z, node.z);
+    ASSERT_EQ(level, node.level);
+}
+
+TEST_F(TestMorton, keyCoordLoop) {
     const double BOX[3] = {1.0, 1.0, 1.0};
     Morton morton;
     morton.key = drand48() * std::numeric_limits<uint64_t>::max();
@@ -63,4 +82,20 @@ TEST_F(TestMorton, cordKeyLoop) {
     Morton newMorton = coord2Key(x, y, z, BOX);
 
     ASSERT_EQ(morton.key, newMorton.key);
+}
+
+TEST_F(TestMorton, coordKeyLoop) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    const double x = drand48() * BOX[0];
+    const double y = drand48() * BOX[1];
+    const double z = drand48() * BOX[2];
+
+    Morton morton = coord2Key(x, y, z, BOX);
+
+    double x2, y2, z2;
+    key2Coord(morton, &x2, &y2, &z2, BOX);
+
+    ASSERT_NEAR(x, x2, 0.0001 * x);
+    ASSERT_NEAR(y, y2, 0.0001 * y);
+    ASSERT_NEAR(z, z2, 0.0001 * z);
 }

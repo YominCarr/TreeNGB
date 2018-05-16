@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <morton.h>
 #include <tree.h>
+#include <particle.h>
 
 class TestTree : public testing::Test
 {
@@ -55,4 +56,45 @@ TEST_F(TestTree, particleInRootNode) {
 
     bool inNode = coordInsideNode(x, y, z, tree.leafs[0], BOX);
     ASSERT_TRUE(inNode);
+}
+
+TEST_F(TestTree, splitRootNode) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Tree tree = initalizeTree();
+    createRootNode(&tree, BOX);
+
+    Particle P[1];
+    P[0].leaf = tree.leafs[0];
+    P[0].Pos[0] = drand48();
+    P[0].Pos[1] = drand48();
+    P[0].Pos[2] = drand48();
+
+    tree.particleCounts[0] = 1;
+    tree.firstParticle[0] = 0;
+
+    ASSERT_EQ(1, tree.leafCount);
+
+    ASSERT_NO_FATAL_FAILURE(splitNode(P, 0, &tree, BOX));
+
+    ASSERT_EQ(8, tree.leafCount);
+
+    const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
+
+    int foundParticles = 0;
+    for (int i = 0, l = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            for (int k = 0; k < 2; ++k, ++l) {
+                ASSERT_EQ(i * d[0], tree.leafs[l].x) << " at l = " << l;
+                ASSERT_EQ(j * d[1], tree.leafs[l].y) << " at l = " << l;
+                ASSERT_EQ(k * d[2], tree.leafs[l].z) << " at l = " << l;
+
+                ASSERT_EQ(1, tree.leafs[l].level) << " at l = " << l;
+
+                foundParticles += tree.particleCounts[l];
+                ASSERT_EQ(0, tree.firstParticle[l]) << " at l = " << l;
+            }
+        }
+    }
+    ASSERT_EQ(1, foundParticles);
 }
