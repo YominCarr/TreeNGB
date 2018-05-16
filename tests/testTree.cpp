@@ -86,7 +86,7 @@ TEST_F(TestTree, splitRootNode) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k, ++l) {
                 double x, y, z;
-                key2Coord(tree.leafs[0], &x, &y, &z, BOX);
+                key2Coord(tree.leafs[l], &x, &y, &z, BOX);
 
                 ASSERT_EQ(i * d[0], x) << " at l = " << l;
                 ASSERT_EQ(j * d[1], y) << " at l = " << l;
