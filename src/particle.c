@@ -40,5 +40,21 @@ bool compareParticles(Particle *particles, int i, int j) {
 }
 
 void swapParticles(Particle *particles, int i, int j) {
-    fprintf(stderr, "Implement 'swapParticles'\n");
+    double p[3];
+    Morton key;
+
+    for (int k = 0; k < 3; ++k) {
+        p[k] = particles[i].Pos[k];
+    }
+    key = particles[i].leaf;
+
+    for (int k = 0; k < 3; ++k) {
+        particles[i].Pos[k] = particles[j].Pos[k];
+    }
+    particles[i].leaf = particles[j].leaf;
+
+    for (int k = 0; k < 3; ++k) {
+        particles[j].Pos[k] = p[k];
+    }
+    particles[j].leaf = key;
 }
