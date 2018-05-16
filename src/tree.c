@@ -20,12 +20,9 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
 Tree initalizeTree() {
     Tree tree;
 
-    tree.leafs = malloc(MAXLEAFS * sizeof(Morton));
-    memset(tree.leafs, 0, MAXLEAFS * sizeof(Morton));
-    tree.firstParticle = malloc(MAXLEAFS * sizeof(int));
-    memset(tree.firstParticle, 0, MAXLEAFS * sizeof(int));
-    tree.particleCounts = malloc(MAXLEAFS * sizeof(int));
-    memset(tree.particleCounts, 0, MAXLEAFS * sizeof(int));
+    tree.leafs = calloc(MAXLEAFS, sizeof(Morton));
+    tree.firstParticle = calloc(MAXLEAFS, sizeof(int));
+    tree.particleCounts = calloc(MAXLEAFS, sizeof(int));
 
     tree.leafCount = 0;
 

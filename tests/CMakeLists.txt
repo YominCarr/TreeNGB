@@ -13,6 +13,7 @@ file(GLOB SOURCE_FILES
 
 file(GLOB TEST_SOURCES
         testMorton.cpp
+        testTree.cpp
 )
 list(APPEND TEST_SOURCES "allTests.cpp")
 add_executable (TreeNGB-tests ${SOURCE_FILES} ${TEST_SOURCES})
