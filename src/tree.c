@@ -47,8 +47,9 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
         int leaf = assignParticleToTree(P, ipart, tree, BOX);
 
         while (tree->particleCounts[leaf] > MAXLEAFSIZE) {
-            if (key2Depth(tree->leafs[leaf]) == MAXDEPTH) {
-                fprintf(stderr, "Trying to refine tree beyond capacity, aborting...");
+            if (! treeHasSpaceForSplittingOnce(tree, tree->leafs[leaf].level+1)) {
+                fprintf(stderr, "Trying to refine tree beyond capacity (leaf count = %d; new depth = %d), aborting...",
+                        tree->leafCount, tree->leafs[leaf].level+1);
                 exit(1);
             }
 
@@ -61,6 +62,11 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
     //After resorting particles we need to readjust the tree
     // @todo maybe absorb this directly into the resorting?
     setParticleRangesInTree(P, npart, tree);
+}
+
+bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth)
+{
+    return tree->leafCount + 7 <= MAXLEAFS && newDepth <= MAXDEPTH;
 }
 
 void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {

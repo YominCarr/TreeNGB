@@ -11,11 +11,9 @@ extern "C" {
 #include "particle.h"
 
 #define NGBMAX 1000
-#define MAXDEPTH 9 //More goes beyond uint in MAXLEAVES * sizeof(Morton))
-#define MAXLEAFS (1 << (3 * MAXDEPTH))
-// @todo actually the tree may be deeper at some points, since we are filling up from the left
+#define MAXDEPTH MAXLEVEL
+#define MAXLEAFS (1 << 29) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
-//@todo looks like maybe morton keys can be even only 32 instead 64 of size
 
 typedef struct {
     Morton *leafs;
@@ -33,6 +31,8 @@ int findNGB(const int ipart, const double hsml, const Tree tree, int ngblist[NGB
 
 void createRootNode(Tree *tree, const double *BOX);
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[3]);
+
+bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth);
 
 int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]);
