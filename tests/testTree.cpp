@@ -152,3 +152,27 @@ TEST_F(TestTree, assignParticleToTree) {
     ASSERT_EQ(0, tree.firstParticle[0]);
     ASSERT_EQ(1, tree.particleCounts[0]);
 }
+
+TEST_F(TestTree, assignParticleToOccupiedNode) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Tree tree = initalizeTree();
+    createRootNode(&tree, BOX);
+    tree.firstParticle[0] = -1;
+
+    Particle P[2];
+    for (int i = 0; i < 2; ++i) {
+        P[i].Pos[0] = drand48();
+        P[i].Pos[1] = drand48();
+        P[i].Pos[2] = drand48();
+    }
+
+    int leaf = -1;
+    ASSERT_NO_FATAL_FAILURE(assignParticleToTree(P, 0, &tree, BOX));
+    ASSERT_NO_FATAL_FAILURE(leaf = assignParticleToTree(P, 1, &tree, BOX));
+
+    ASSERT_EQ(0, leaf);
+    ASSERT_EQ(tree.leafs[0].key, P[0].leaf.key);
+    ASSERT_EQ(0, tree.firstParticle[0]);
+    ASSERT_EQ(2, tree.particleCounts[0]);
+}
