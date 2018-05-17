@@ -110,6 +110,7 @@ int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]
     const int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
     P[ipart].leaf = tree->leafs[leaf];
+    tree->firstParticle[leaf] = ipart;
     ++ tree->particleCounts[leaf];
 
     return leaf;

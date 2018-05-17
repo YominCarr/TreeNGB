@@ -131,3 +131,24 @@ TEST_F(TestTree, splitRootNode) {
     }
     ASSERT_EQ(1, foundParticles);
 }
+
+TEST_F(TestTree, assignParticleToTree) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Tree tree = initalizeTree();
+    createRootNode(&tree, BOX);
+    tree.firstParticle[0] = -1;
+
+    Particle P[1];
+    P[0].Pos[0] = drand48();
+    P[0].Pos[1] = drand48();
+    P[0].Pos[2] = drand48();
+
+    int leaf = -1;
+    ASSERT_NO_FATAL_FAILURE(leaf = assignParticleToTree(P, 0, &tree, BOX));
+
+    ASSERT_EQ(0, leaf);
+    ASSERT_EQ(tree.leafs[0].key, P[0].leaf.key);
+    ASSERT_EQ(0, tree.firstParticle[0]);
+    ASSERT_EQ(1, tree.particleCounts[0]);
+}
