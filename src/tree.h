@@ -26,8 +26,6 @@ typedef struct {
 Tree buildTree(Particle *P, const int npart, const double BOX[3]);
 Tree initalizeTree();
 
-int findNGB(const int ipart, const double hsml, const Tree tree, int ngblist[NGBMAX]);
-
 
 void createRootNode(Tree *tree, const double *BOX);
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[3]);
@@ -43,6 +41,25 @@ int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
 int getIndexOfLeaf(Morton leaf, Tree* tree);
+
+
+
+int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int ngblist[NGBMAX]);
+
+bool isNotRootNode(Morton node);
+bool nodeBiggerThanSphere(Morton node, const double radius);
+Morton getParentNode(Morton node);
+
+int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
+                               Morton node);
+
+Morton getFirstLeafInNode(Morton node);
+Morton getNextLeaf(Morton leaf);
+bool nodeContainsLeaf(Morton node, Morton leaf);
+
+int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
+                         Morton leaf);
+
 
 void freeTreeContents(Tree *tree);
 

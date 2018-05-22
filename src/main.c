@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <omp.h>
+#include <stdlib.h>
 #include "particle.h"
 #include "tree.h"
 #include "omp.h"
@@ -28,6 +29,9 @@ int main(int argc, char *argv[]) {
 
     printf("Build tree\n\n");
     Tree tree = buildTree(P, NPART, BOX);
+
+    int* ngblist = calloc(NGBMAX, sizeof(int));
+    int found = findNGB(P, 0, 0.1, &tree, ngblist);
 
     freeTreeContents(&tree);
     free(P);

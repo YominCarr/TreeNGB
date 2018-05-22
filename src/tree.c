@@ -27,11 +27,6 @@ Tree initalizeTree() {
     return tree;
 }
 
-int findNGB(const int ipart, const double hsml, const Tree tree, int *ngblist) {
-    fprintf(stderr, "Implement 'findNGB'\n");
-    return 0;
-}
-
 void createRootNode(Tree *tree, const double *BOX) {
     tree->leafCount = 1;
 
@@ -186,6 +181,68 @@ int getIndexOfLeaf(Morton leaf, Tree* tree) {
     }
     fprintf(stderr, "Leaf %lu unknown, aborting...", leaf.key);
     exit(1);
+}
+
+int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist) {
+    Morton node = P[ipart].leaf;
+    while (isNotRootNode(node) && nodeBiggerThanSphere(node, hsml)) {
+        node = getParentNode(node);
+    }
+
+    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, node);
+    return found;
+}
+
+bool isNotRootNode(Morton node) {
+    fprintf(stderr, "Implement isNotRootNode!\n");
+    return 0;
+}
+
+bool nodeBiggerThanSphere(Morton node, const double radius) {
+    fprintf(stderr, "Implement nodeBiggerThanSphere!\n");
+    return 0;
+}
+
+Morton getParentNode(Morton node) {
+    fprintf(stderr, "Implement getParentNode!\n");
+    Morton result;
+    return result;
+}
+
+int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
+                               Morton node) {
+    Morton leaf = getFirstLeafInNode(node);
+    int found = 0;
+
+    do {
+        found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leaf);
+        leaf = getNextLeaf(leaf);
+    } while(nodeContainsLeaf(node, leaf));
+
+    return found;
+}
+
+Morton getFirstLeafInNode(Morton node) {
+    fprintf(stderr, "Implement getFirstLeafInNode!\n");
+    Morton result;
+    return result;
+}
+
+int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
+                         Morton leaf) {
+    fprintf(stderr, "Implement findNeighboursInLeaf!\n");
+    return 0;
+}
+
+Morton getNextLeaf(Morton leaf) {
+    fprintf(stderr, "Implement getNextLeaf!\n");
+    Morton result;
+    return result;
+}
+
+bool nodeContainsLeaf(Morton node, Morton leaf) {
+    fprintf(stderr, "Implement nodeContainsLeaf!\n");
+    return 0;
 }
 
 void freeTreeContents(Tree *tree) {
