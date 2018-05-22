@@ -38,7 +38,7 @@ void createRootNode(Tree *tree, const double *BOX) {
 
 void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX) {
     for (int ipart = 0; ipart < npart; ++ipart) {
-        int leaf = assignParticleToTree(P, ipart, tree, BOX);
+        unsigned int leaf = assignParticleToTree(P, ipart, tree, BOX);
 
         while (tree->particleCounts[leaf] > MAXLEAFSIZE) {
             if (! treeHasSpaceForSplittingOnce(tree, tree->leaves[leaf].level+1)) {
@@ -63,7 +63,7 @@ bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth)
     return tree->leafCount + 7 <= MAXLEAVES && newDepth <= MAXDEPTH;
 }
 
-void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
+void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3]) {
     const Morton parent = tree->leaves[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
@@ -82,7 +82,7 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
     }
 
     //Create 8 new nodes, save one in l and the others in Tree.leafCount (+0,1,2,...)
-    int save[8] = {l, tree->leafCount, tree->leafCount+1, tree->leafCount+2, tree->leafCount+3,
+    unsigned int save[8] = {l, tree->leafCount, tree->leafCount+1, tree->leafCount+2, tree->leafCount+3,
                    tree->leafCount+4, tree->leafCount+5, tree->leafCount+6};
     for (int i = 0, c = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
@@ -93,7 +93,7 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
                 Morton node = coord2Key(x, y, z, BOX);
                 node.level = parentLevel + 1;
 
-                const int s = save[c];
+                const unsigned int s = save[c];
                 tree->leaves[s] = node;
 
                 if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
@@ -108,8 +108,8 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
 }
 
 
-int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]) {
-    const int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
+unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]) {
+    const unsigned int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
     P[ipart].leaf = tree->leaves[leaf];
     if (tree->particleCounts[leaf] == 0) {
@@ -120,7 +120,7 @@ int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]
     return leaf;
 }
 
-int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3])
+unsigned int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3])
 {
     for (int l = 0; l < tree->leafCount; ++l) {
         if (coordInsideNode(x, y, z, tree->leaves[l], BOX)) {

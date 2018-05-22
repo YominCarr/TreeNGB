@@ -144,10 +144,10 @@ TEST_F(TestTree, assignParticleToTree) {
     P[0].Pos[1] = drand48();
     P[0].Pos[2] = drand48();
 
-    int leaf = -1;
+    unsigned int leaf = UINT32_MAX;
     ASSERT_NO_FATAL_FAILURE(leaf = assignParticleToTree(P, 0, &tree, BOX));
 
-    ASSERT_EQ(0, leaf);
+    ASSERT_EQ(0u, leaf);
     ASSERT_EQ(tree.leaves[0].key, P[0].leaf.key);
     ASSERT_EQ(0, tree.firstParticle[0]);
     ASSERT_EQ(1, tree.particleCounts[0]);
