@@ -94,14 +94,14 @@ TEST_F(TestTree, splitRootNode) {
     Tree tree = initalizeTree();
     createRootNode(&tree, BOX);
 
-    Particle P[1];
-    P[0].leaf = tree.leafs[0];
-    P[0].Pos[0] = drand48();
-    P[0].Pos[1] = drand48();
-    P[0].Pos[2] = drand48();
+    Particle P[2];
+    P[1].leaf = tree.leafs[0];
+    P[1].Pos[0] = drand48();
+    P[1].Pos[1] = drand48();
+    P[1].Pos[2] = drand48();
 
     tree.particleCounts[0] = 1;
-    tree.firstParticle[0] = 0;
+    tree.firstParticle[0] = 1;
 
     ASSERT_EQ(1, tree.leafCount);
 
@@ -111,7 +111,7 @@ TEST_F(TestTree, splitRootNode) {
 
     const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
 
-    int foundParticles = 0;
+    int foundParticles = 0, firstParticles = 0;
     for (int i = 0, l = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k, ++l) {
@@ -125,11 +125,12 @@ TEST_F(TestTree, splitRootNode) {
                 ASSERT_EQ(1u, tree.leafs[l].level) << " at l = " << l;
 
                 foundParticles += tree.particleCounts[l];
-                ASSERT_EQ(0, tree.firstParticle[l]) << " at l = " << l;
+                firstParticles += tree.firstParticle[l];
             }
         }
     }
     ASSERT_EQ(1, foundParticles);
+    ASSERT_EQ(1, firstParticles);
 }
 
 TEST_F(TestTree, assignParticleToTree) {

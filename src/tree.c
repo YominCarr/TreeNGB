@@ -2,9 +2,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <math.h>
-#include <string.h>
 #include "tree.h"
-#include "morton.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -79,6 +77,7 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
     const int epart = tree->firstParticle[l];
 
     //Clean node spot which will be reused
+    tree->firstParticle[l] = 0;
     tree->particleCounts[l] = 0;
 
     double newSize[3];
@@ -104,6 +103,7 @@ void splitNode(Particle *P, const int l, Tree *tree, const double BOX[3]) {
                 if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
                     P[epart].leaf = node;
                     tree->particleCounts[s] = 1;
+                    tree->firstParticle[s] = epart;
                 }
             }
         }
