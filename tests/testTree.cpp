@@ -192,19 +192,19 @@ TEST_F(TestTree, rootNodeDetection) {
 
 TEST_F(TestTree, nodeToBoxTransformation) {
     const double BOX[3] = {1.0, 1.0, 1.0};
-    double center[3], sideLength[3];
+    double lowerCoords[3], sideLength[3];
 
     Morton node = coord2Key(0.25, 0.5, 0.75, BOX);
     node.level = 2;
 
-    ASSERT_NO_FATAL_FAILURE(nodeToBox(node, center, sideLength, BOX));
+    ASSERT_NO_FATAL_FAILURE(nodeToBox(node, lowerCoords, sideLength, BOX));
 
     for (int i = 0; i < 3; ++i) {
         ASSERT_EQ(0.25, sideLength[i]) << " at i = " << i;
     }
-    ASSERT_EQ(0.375, center[0]);
-    ASSERT_EQ(0.625, center[1]);
-    ASSERT_EQ(0.875, center[2]);
+    ASSERT_EQ(0.25, lowerCoords[0]);
+    ASSERT_EQ(0.5, lowerCoords[1]);
+    ASSERT_EQ(0.75, lowerCoords[2]);
 }
 
 TEST_F(TestTree, nodeSphereInteraction) {

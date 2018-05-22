@@ -7,10 +7,10 @@ extern "C" {
 
 #include <stdbool.h>
 
-bool sphereInsideBox(const double *boxCenter, const double *sideLength,
+bool sphereInsideBox(const double *boxLowerCoord, const double *sideLength,
                      const double *sphereCenter, const double radius);
-bool sphereCenterInsideBox(const double *boxCenter, const double *sideLength, const double *sphereCenter);
-double getMaxRadiusForSphereInBox(const double *boxCenter, const double *sideLength, const double *sphereCenter);
+bool coordInsideBox(const double *boxLowerCoord, const double *sideLength, const double *coord);
+double getMaxRadiusForSphereInBox(const double *boxLowerCoord, const double *sideLength, const double *sphereCenter);
 
 #ifdef __cplusplus
 }

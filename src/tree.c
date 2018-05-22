@@ -199,17 +199,15 @@ bool isNotRootNode(Morton node) {
 }
 
 bool nodeBiggerThanSphere(Morton node, const double center[3], const double radius, const double BOX[3]) {
-    double nodeCenter[3], nodeSideLength[3];
-    nodeToBox(node, nodeCenter, nodeSideLength, BOX);
-    return sphereInsideBox(nodeCenter, nodeSideLength, center, radius);
+    double nodeLowerCoords[3], nodeSideLength[3];
+    nodeToBox(node, nodeLowerCoords, nodeSideLength, BOX);
+    return sphereInsideBox(nodeLowerCoords, nodeSideLength, center, radius);
 }
 
-void nodeToBox(Morton node, double* center, double* sideLength, const double BOX[3]) {
-    double pos[3];
-    key2Coord(node, &pos[0], &pos[1], &pos[2], BOX);
+void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const double BOX[3]) {
+    key2Coord(node, &lowerCoords[0], &lowerCoords[1], &lowerCoords[2], BOX);
     for (int i = 0; i < 3; ++i) {
         sideLength[i] = BOX[i] / (1 << key2Depth(node));
-        center[i] = pos[i] + 0.5 * sideLength[i];
     }
 }
 
