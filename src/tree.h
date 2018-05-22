@@ -47,7 +47,7 @@ int getIndexOfLeaf(Morton leaf, Tree* tree);
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int ngblist[NGBMAX], const double BOX[3]);
 
 bool isNotRootNode(Morton node);
-bool nodeBiggerThanSphere(Morton node, const double center[3], const double radius, const double BOX[3]);
+bool nodeSurroundsSphere(Morton node, const double *center, const double radius, const double *BOX);
 void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const double BOX[3]);
 Morton getParentNode(Morton node);
 

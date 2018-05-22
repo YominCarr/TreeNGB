@@ -208,6 +208,15 @@ TEST_F(TestTree, nodeToBoxTransformation) {
 }
 
 TEST_F(TestTree, nodeSphereInteraction) {
-    //nodeBiggerThanSphere
-    ASSERT_TRUE(false);
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    Morton node = coord2Key(0.25, 0.5, 0.75, BOX);
+    node.level = 2;
+    const double center[3] = {0.4, 0.65, 0.9};
+    double radius = 0.05;
+
+    ASSERT_TRUE(nodeSurroundsSphere(node, center, radius, BOX));
+
+    radius = 0.2;
+
+    ASSERT_FALSE(nodeSurroundsSphere(node, center, radius, BOX));
 }

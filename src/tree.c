@@ -186,7 +186,7 @@ int getIndexOfLeaf(Morton leaf, Tree* tree) {
 
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
     Morton node = P[ipart].leaf;
-    while (isNotRootNode(node) && nodeBiggerThanSphere(node, P[ipart].Pos, hsml, BOX)) {
+    while (isNotRootNode(node) || !nodeSurroundsSphere(node, P[ipart].Pos, hsml, BOX)) {
         node = getParentNode(node);
     }
 
@@ -198,9 +198,10 @@ bool isNotRootNode(Morton node) {
     return node.key == 0u;
 }
 
-bool nodeBiggerThanSphere(Morton node, const double center[3], const double radius, const double BOX[3]) {
+bool nodeSurroundsSphere(Morton node, const double *center, const double radius, const double *BOX) {
     double nodeLowerCoords[3], nodeSideLength[3];
     nodeToBox(node, nodeLowerCoords, nodeSideLength, BOX);
+
     return sphereInsideBox(nodeLowerCoords, nodeSideLength, center, radius);
 }
 
