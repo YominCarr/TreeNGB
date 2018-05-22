@@ -177,3 +177,16 @@ TEST_F(TestTree, assignParticleToOccupiedNode) {
     ASSERT_EQ(0, tree.firstParticle[0]);
     ASSERT_EQ(2, tree.particleCounts[0]);
 }
+
+TEST_F(TestTree, rootNodeDetection) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    Tree tree = initalizeTree();
+    createRootNode(&tree, BOX);
+
+    ASSERT_TRUE(isNotRootNode(tree.leaves[0]));
+
+    Morton morton;
+    morton.key = drand48() * std::numeric_limits<uint64_t>::max();
+
+    ASSERT_FALSE(isNotRootNode(morton));
+}

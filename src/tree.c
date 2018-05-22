@@ -194,8 +194,7 @@ int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, i
 }
 
 bool isNotRootNode(Morton node) {
-    fprintf(stderr, "Implement isNotRootNode!\n");
-    return 0;
+    return node.key == 0u;
 }
 
 bool nodeBiggerThanSphere(Morton node, const double radius) {
