@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     Tree tree = buildTree(P, NPART, BOX);
 
     int* ngblist = calloc(NGBMAX, sizeof(int));
-    int found = findNGB(P, 0, 0.1, &tree, ngblist);
+    int found = findNGB(P, 0, 0.1, &tree, ngblist, BOX);
 
     freeTreeContents(&tree);
     free(P);

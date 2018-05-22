@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "tree.h"
+#include "geometry.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -130,7 +131,7 @@ int findLeafForPosition(const double x, const double y, const double z, const Tr
     exit(1);
 }
 
-bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double *BOX) {
+bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]) {
     double sideLength[3];
     getNodeSize(sideLength, key, BOX);
 
@@ -183,9 +184,9 @@ int getIndexOfLeaf(Morton leaf, Tree* tree) {
     exit(1);
 }
 
-int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist) {
+int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
     Morton node = P[ipart].leaf;
-    while (isNotRootNode(node) && nodeBiggerThanSphere(node, hsml)) {
+    while (isNotRootNode(node) && nodeBiggerThanSphere(node, P[ipart].Pos, hsml, BOX)) {
         node = getParentNode(node);
     }
 
@@ -197,9 +198,19 @@ bool isNotRootNode(Morton node) {
     return node.key == 0u;
 }
 
-bool nodeBiggerThanSphere(Morton node, const double radius) {
-    fprintf(stderr, "Implement nodeBiggerThanSphere!\n");
-    return 0;
+bool nodeBiggerThanSphere(Morton node, const double center[3], const double radius, const double BOX[3]) {
+    double nodeCenter[3], nodeSideLength[3];
+    nodeToBox(node, nodeCenter, nodeSideLength, BOX);
+    return sphereInsideBox(nodeCenter, nodeSideLength, center, radius);
+}
+
+void nodeToBox(Morton node, double* center, double* sideLength, const double BOX[3]) {
+    double pos[3];
+    key2Coord(node, &pos[0], &pos[1], &pos[2], BOX);
+    for (int i = 0; i < 3; ++i) {
+        sideLength[i] = BOX[i] / (1 << key2Depth(node));
+        center[i] = pos[i] + 0.5 * sideLength[i];
+    }
 }
 
 Morton getParentNode(Morton node) {

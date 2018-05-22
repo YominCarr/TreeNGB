@@ -9,12 +9,14 @@ include_directories (
 file(GLOB SOURCE_FILES
         ../src/tree.c
         ../src/particle.c
-        ../src/morton.c)
+        ../src/morton.c
+        ../src/geometry.c)
 
 file(GLOB TEST_SOURCES
         testMorton.cpp
         testTree.cpp
         testParticle.cpp
+        testGeometry.cpp
 )
 list(APPEND TEST_SOURCES "allTests.cpp")
 add_executable (TreeNGB-tests ${SOURCE_FILES} ${TEST_SOURCES})
