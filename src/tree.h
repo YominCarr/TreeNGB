@@ -16,11 +16,11 @@ extern "C" {
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 
 typedef struct {
-    Morton *leaves;
+    Morton *nodes;
     int *firstParticle; //Assume particles are sorted then leaf i contains particles
     int *particleCounts; //firstParticle[i] -> firstParticle[i] + particleCounts[i] - 1
     //@todo do I actually need to count if it's either 0 or 1?
-    int leafCount;
+    int nodeCount;
 } Tree;
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]);
@@ -33,6 +33,7 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double BOX[
 bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth);
 
 unsigned int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
+bool nodeIsLeaf(const Tree *tree, unsigned int leaf);
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]);
 void getNodeSize(double* sideLength, const Morton key, const double BOX[3]);
 

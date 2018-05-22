@@ -19,20 +19,20 @@ Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
 Tree initalizeTree() {
     Tree tree;
 
-    tree.leaves = calloc(MAXLEAVES, sizeof(Morton));
+    tree.nodes = calloc(MAXLEAVES, sizeof(Morton));
     tree.firstParticle = calloc(MAXLEAVES, sizeof(int));
     tree.particleCounts = calloc(MAXLEAVES, sizeof(int));
 
-    tree.leafCount = 0;
+    tree.nodeCount = 0;
 
     return tree;
 }
 
 void createRootNode(Tree *tree, const double *BOX) {
-    tree->leafCount = 1;
+    tree->nodeCount = 1;
 
     const Morton node = coord2Key(0.0, 0.0, 0.0, BOX);
-    tree->leaves[0] = node;
+    tree->nodes[0] = node;
 
 }
 
@@ -41,9 +41,9 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
         unsigned int leaf = assignParticleToTree(P, ipart, tree, BOX);
 
         while (tree->particleCounts[leaf] > MAXLEAFSIZE) {
-            if (! treeHasSpaceForSplittingOnce(tree, tree->leaves[leaf].level+1)) {
+            if (! treeHasSpaceForSplittingOnce(tree, tree->nodes[leaf].level+1)) {
                 fprintf(stderr, "Trying to refine tree beyond capacity (leaf count = %d; new depth = %d), aborting...",
-                        tree->leafCount, tree->leaves[leaf].level+1);
+                        tree->nodeCount, tree->nodes[leaf].level+1);
                 exit(1);
             }
 
@@ -60,11 +60,11 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
 
 bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth)
 {
-    return tree->leafCount + 7 <= MAXLEAVES && newDepth <= MAXDEPTH;
+    return tree->nodeCount + 8 <= MAXLEAVES && newDepth <= MAXDEPTH;
 }
 
 void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3]) {
-    const Morton parent = tree->leaves[l];
+    const Morton parent = tree->nodes[l];
     double pX, pY, pZ; //Assume these are the corner with the smallest coord
     key2Coord(parent, &pX, &pY, &pZ, BOX);
     const int parentLevel = key2Depth(parent);
@@ -72,8 +72,8 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
     //Particle to redistribute
     const int epart = tree->firstParticle[l];
 
-    //Clean node spot which will be reused
-    tree->firstParticle[l] = 0;
+    // @todo Do I need to track these stats for the non leaf nodes?
+    tree->firstParticle[l] = -1; // Minus to mark it is not a leaf
     tree->particleCounts[l] = 0;
 
     double newSize[3];
@@ -81,9 +81,6 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
         newSize[i] = BOX[i] / (2 << parentLevel);
     }
 
-    //Create 8 new nodes, save one in l and the others in Tree.leafCount (+0,1,2,...)
-    unsigned int save[8] = {l, tree->leafCount, tree->leafCount+1, tree->leafCount+2, tree->leafCount+3,
-                   tree->leafCount+4, tree->leafCount+5, tree->leafCount+6};
     for (int i = 0, c = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k, ++c) {
@@ -93,8 +90,8 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
                 Morton node = coord2Key(x, y, z, BOX);
                 node.level = parentLevel + 1;
 
-                const unsigned int s = save[c];
-                tree->leaves[s] = node;
+                const unsigned int s = tree->nodeCount + c;
+                tree->nodes[s] = node;
 
                 if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
                     P[epart].leaf = node;
@@ -104,14 +101,14 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
             }
         }
     }
-    tree->leafCount += 7;
+    tree->nodeCount += 8;
 }
 
 
 unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]) {
     const unsigned int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
-    P[ipart].leaf = tree->leaves[leaf];
+    P[ipart].leaf = tree->nodes[leaf];
     if (tree->particleCounts[leaf] == 0) {
         tree->firstParticle[leaf] = ipart;
     }
@@ -122,13 +119,17 @@ unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const doub
 
 unsigned int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3])
 {
-    for (int l = 0; l < tree->leafCount; ++l) {
-        if (coordInsideNode(x, y, z, tree->leaves[l], BOX)) {
+    for (unsigned int l = 0; l < tree->nodeCount; ++l) {
+        if (nodeIsLeaf(tree, l) && coordInsideNode(x, y, z, tree->nodes[l], BOX)) {
             return l;
         }
     }
     fprintf(stderr, "No leaf found for position, aborting...");
     exit(1);
+}
+
+bool nodeIsLeaf(const Tree *tree, unsigned int leaf) {
+    return tree->firstParticle[leaf] >= 0;
 }
 
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]) {
@@ -175,8 +176,8 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
 }
 
 int getIndexOfLeaf(Morton leaf, Tree* tree) {
-    for (int i = 0; i < tree->leafCount; ++i) {
-        if (tree->leaves[i].key == leaf.key) {
+    for (int i = 0; i < tree->nodeCount; ++i) {
+        if (tree->nodes[i].key == leaf.key) {
             return i;
         }
     }
@@ -257,5 +258,5 @@ bool nodeContainsLeaf(Morton node, Morton leaf) {
 void freeTreeContents(Tree *tree) {
     free(tree->particleCounts);
     free(tree->firstParticle);
-    free(tree->leaves);
+    free(tree->nodes);
 }
