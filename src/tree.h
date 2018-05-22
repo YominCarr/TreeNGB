@@ -12,11 +12,11 @@ extern "C" {
 
 #define NGBMAX 1000
 #define MAXDEPTH MAXLEVEL
-#define MAXLEAFS (1 << 29) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
+#define MAXLEAVES (1 << 29) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 
 typedef struct {
-    Morton *leafs;
+    Morton *leaves;
     int *firstParticle; //Assume particles are sorted then leaf i contains particles
     int *particleCounts; //firstParticle[i] -> firstParticle[i] + particleCounts[i] - 1
     //@todo do I actually need to count if it's either 0 or 1?
