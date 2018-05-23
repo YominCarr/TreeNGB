@@ -22,6 +22,7 @@ Tree initalizeTree() {
     tree.nodes = calloc(MAXLEAVES, sizeof(Morton));
     tree.firstParticle = calloc(MAXLEAVES, sizeof(int));
     tree.particleCounts = calloc(MAXLEAVES, sizeof(int));
+    tree.parentNodes = calloc(MAXLEAVES, sizeof(unsigned int));
 
     tree.nodeCount = 0;
 
@@ -81,17 +82,17 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
         newSize[i] = BOX[i] / (2 << parentLevel);
     }
 
-    for (int i = 0, c = 0; i < 2; ++i) {
+    for (int i = 0, s = tree->nodeCount; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
-            for (int k = 0; k < 2; ++k, ++c) {
+            for (int k = 0; k < 2; ++k, ++s) {
                 const double x = pX + i * newSize[0];
                 const double y = pY + j * newSize[1];
                 const double z = pZ + k * newSize[2];
                 Morton node = coord2Key(x, y, z, BOX);
                 node.level = parentLevel + 1;
 
-                const unsigned int s = tree->nodeCount + c;
                 tree->nodes[s] = node;
+                tree->parentNodes[s] = l;
 
                 if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
                     P[epart].leaf = node;
@@ -215,6 +216,7 @@ void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const doubl
 
 Morton getParentNode(Morton node) {
     fprintf(stderr, "Implement getParentNode!\n");
+    // @todo In principle easy but requires a lookup Morton -> index; consider saving indices in particles instead
     Morton result;
     return result;
 }
@@ -256,6 +258,7 @@ bool nodeContainsLeaf(Morton node, Morton leaf) {
 }
 
 void freeTreeContents(Tree *tree) {
+    free(tree->parentNodes);
     free(tree->particleCounts);
     free(tree->firstParticle);
     free(tree->nodes);

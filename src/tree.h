@@ -17,8 +17,9 @@ extern "C" {
 
 typedef struct {
     Morton *nodes;
-    int *firstParticle; //Assume particles are sorted then leaf i contains particles
-    int *particleCounts; //firstParticle[i] -> firstParticle[i] + particleCounts[i] - 1
+    int *firstParticle;
+    int *particleCounts; // if negative the node is not a leaf
+    unsigned int *parentNodes;
     //@todo do I actually need to count if it's either 0 or 1?
     int nodeCount;
 } Tree;

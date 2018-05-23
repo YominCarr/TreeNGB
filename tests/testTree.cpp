@@ -18,6 +18,7 @@ TEST_F(TestTree, treeInitialization)
             ASSERT_TRUE(tree.nodes != NULL);
             ASSERT_TRUE(tree.firstParticle != NULL);
             ASSERT_TRUE(tree.particleCounts != NULL);
+            ASSERT_TRUE(tree.parentNodes != NULL);
 
             ASSERT_EQ(0, tree.nodeCount);
             ASSERT_EQ(0, tree.particleCounts[0]);
@@ -26,6 +27,7 @@ TEST_F(TestTree, treeInitialization)
                 ASSERT_EQ(0u, tree.nodes[i].key);
                 ASSERT_EQ(0, tree.firstParticle[i]);
                 ASSERT_EQ(0, tree.particleCounts[i]);
+                ASSERT_EQ(0u, tree.parentNodes[i]);
             }
 
             createRootNode(&tree, BOX);
@@ -41,6 +43,7 @@ TEST_F(TestTree, treeInitialization)
                 ASSERT_EQ(0u, tree.nodes[i].key);
                 ASSERT_EQ(0, tree.firstParticle[i]);
                 ASSERT_EQ(0, tree.particleCounts[i]);
+                ASSERT_EQ(0u, tree.parentNodes[i]);
             }
     );
 }
@@ -101,6 +104,9 @@ TEST_F(TestTree, splitRootNode) {
 
     tree.particleCounts[0] = 1;
     tree.firstParticle[0] = 1;
+    for (int i = 1; i < 9; ++i) {
+        tree.parentNodes[i] = 1;
+    }
 
     ASSERT_EQ(1, tree.nodeCount);
 
@@ -126,6 +132,7 @@ TEST_F(TestTree, splitRootNode) {
                 ASSERT_EQ(1u, tree.nodes[l].level) << " at l = " << l;
 
                 ASSERT_TRUE(nodeIsLeaf(&tree, l));
+                ASSERT_EQ(0u, tree.parentNodes[l]);
 
                 foundParticles += tree.particleCounts[l];
                 firstParticles += tree.firstParticle[l];
