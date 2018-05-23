@@ -10,14 +10,16 @@ extern "C" {
 
 typedef struct {
     double Pos[3];
-    Morton leaf;
+    unsigned int leafIndex;
 } Particle;
+
+typedef struct Tree Tree;
 
 Particle* createRandomParticles(const int N, const double BOX[3]);
 
-void sortParticlesByKey(Particle* particles, const int N);
+void sortParticlesByKey(Particle* particles, const int N, Tree* tree);
 
-bool compareParticles(Particle *particles, int i, int j);
+bool compareParticles(Particle *particles, int i, int j, Tree* tree);
 void swapParticles(Particle *particles, int i, int j);
 
 #ifdef __cplusplus

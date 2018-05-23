@@ -15,14 +15,16 @@ extern "C" {
 #define MAXLEAVES (1 << 29) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 
-typedef struct {
+struct Tree {
     Morton *nodes;
     int *firstParticle;
     int *particleCounts; // if negative the node is not a leaf
     unsigned int *parentNodes;
     //@todo do I actually need to count if it's either 0 or 1?
     int nodeCount;
-} Tree;
+};
+
+typedef struct Tree Tree;
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]);
 Tree initalizeTree();
@@ -42,7 +44,6 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
 unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]);
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
-int getIndexOfLeaf(Morton leaf, Tree* tree);
 
 
 

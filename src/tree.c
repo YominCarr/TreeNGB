@@ -53,7 +53,7 @@ void buildTreeSerial(Particle *P, const int npart, Tree *tree, const double *BOX
         }
     }
 
-    sortParticlesByKey(P, npart);
+    sortParticlesByKey(P, npart, tree);
     //After resorting particles we need to readjust the tree
     // @todo maybe absorb this directly into the resorting?
     setParticleRangesInTree(P, npart, tree);
@@ -95,7 +95,7 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
                 tree->parentNodes[s] = l;
 
                 if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
-                    P[epart].leaf = node;
+                    P[epart].leafIndex = s;
                     tree->particleCounts[s] = 1;
                     tree->firstParticle[s] = epart;
                 }
@@ -109,7 +109,7 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
 unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]) {
     const unsigned int leaf = findLeafForPosition(P[ipart].Pos[0], P[ipart].Pos[1], P[ipart].Pos[2], tree, BOX);
 
-    P[ipart].leaf = tree->nodes[leaf];
+    P[ipart].leafIndex = leaf;
     if (tree->particleCounts[leaf] == 0) {
         tree->firstParticle[leaf] = ipart;
     }
@@ -160,34 +160,23 @@ void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
 }
 
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
-    Morton leaf, oldLeaf;
-    oldLeaf.key = 0;
-    int leafIndex = 0;
+    unsigned int leafIndex = 0, oldLeafIndex = 0;
 
     for (int ipart = 0; ipart < npart; ++ipart) {
-        leaf = particles[ipart].leaf;
+        leafIndex = particles[ipart].leafIndex;
 
-        if (ipart == 0 || leaf.key != oldLeaf.key) {
-            leafIndex = getIndexOfLeaf(leaf, tree);
-            oldLeaf = leaf;
+        if (ipart == 0 || leafIndex != oldLeafIndex) {
+            oldLeafIndex = leafIndex;
 
             tree->firstParticle[leafIndex] = ipart;
         }
     }
 }
 
-int getIndexOfLeaf(Morton leaf, Tree* tree) {
-    for (int i = 0; i < tree->nodeCount; ++i) {
-        if (tree->nodes[i].key == leaf.key) {
-            return i;
-        }
-    }
-    fprintf(stderr, "Leaf %lu unknown, aborting...", leaf.key);
-    exit(1);
-}
-
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
-    Morton node = P[ipart].leaf;
+    const unsigned int leafIndex = P[ipart].leafIndex;
+    Morton node = tree->nodes[leafIndex];
+
     while (isNotRootNode(node) || !nodeSurroundsSphere(node, P[ipart].Pos, hsml, BOX)) {
         node = getParentNode(node);
     }

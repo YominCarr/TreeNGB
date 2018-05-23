@@ -97,7 +97,7 @@ TEST_F(TestTree, splitRootNode) {
     createRootNode(&tree, BOX);
 
     Particle P[2];
-    P[1].leaf = tree.nodes[0];
+    P[1].leafIndex = 0;
     P[1].Pos[0] = drand48();
     P[1].Pos[1] = drand48();
     P[1].Pos[2] = drand48();
@@ -159,7 +159,7 @@ TEST_F(TestTree, assignParticleToTree) {
     ASSERT_NO_FATAL_FAILURE(leaf = assignParticleToTree(P, 0, &tree, BOX));
 
     ASSERT_EQ(0u, leaf);
-    ASSERT_EQ(tree.nodes[0].key, P[0].leaf.key);
+    ASSERT_EQ(0u, P[0].leafIndex);
     ASSERT_EQ(0, tree.firstParticle[0]);
     ASSERT_EQ(1, tree.particleCounts[0]);
 }
@@ -183,7 +183,7 @@ TEST_F(TestTree, assignParticleToOccupiedNode) {
     ASSERT_NO_FATAL_FAILURE(leaf = assignParticleToTree(P, 1, &tree, BOX));
 
     ASSERT_EQ(0, leaf);
-    ASSERT_EQ(tree.nodes[0].key, P[0].leaf.key);
+    ASSERT_EQ(0u, P[0].leafIndex);
     ASSERT_EQ(0, tree.firstParticle[0]);
     ASSERT_EQ(2, tree.particleCounts[0]);
 }
