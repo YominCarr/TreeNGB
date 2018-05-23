@@ -19,6 +19,7 @@ TEST_F(TestTree, treeInitialization)
             ASSERT_TRUE(tree.firstParticle != NULL);
             ASSERT_TRUE(tree.particleCounts != NULL);
             ASSERT_TRUE(tree.parentNodes != NULL);
+            ASSERT_TRUE(tree.nextNodes != NULL);
 
             ASSERT_EQ(0, tree.nodeCount);
             ASSERT_EQ(0, tree.particleCounts[0]);
@@ -28,6 +29,7 @@ TEST_F(TestTree, treeInitialization)
                 ASSERT_EQ(0, tree.firstParticle[i]);
                 ASSERT_EQ(0, tree.particleCounts[i]);
                 ASSERT_EQ(0u, tree.parentNodes[i]);
+                ASSERT_EQ(0u, tree.nextNodes[i]);
             }
 
             createRootNode(&tree, BOX);
@@ -44,6 +46,7 @@ TEST_F(TestTree, treeInitialization)
                 ASSERT_EQ(0, tree.firstParticle[i]);
                 ASSERT_EQ(0, tree.particleCounts[i]);
                 ASSERT_EQ(0u, tree.parentNodes[i]);
+                ASSERT_EQ(0u, tree.nextNodes[i]);
             }
     );
 }
@@ -109,10 +112,12 @@ TEST_F(TestTree, splitRootNode) {
     }
 
     ASSERT_EQ(1, tree.nodeCount);
+    ASSERT_EQ(0u, tree.nextNodes[0]);
 
     ASSERT_NO_FATAL_FAILURE(splitNode(P, 0, &tree, BOX));
 
     ASSERT_EQ(9, tree.nodeCount);
+    ASSERT_EQ(1u, tree.nextNodes[0]);
 
     const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
 
@@ -133,9 +138,106 @@ TEST_F(TestTree, splitRootNode) {
 
                 ASSERT_TRUE(nodeIsLeaf(&tree, l));
                 ASSERT_EQ(0u, tree.parentNodes[l]);
+                const unsigned int nextNode = (l < 8 ? l+1 : 0);
+                ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
 
                 foundParticles += tree.particleCounts[l];
                 firstParticles += tree.firstParticle[l];
+            }
+        }
+    }
+    ASSERT_EQ(1, foundParticles);
+    ASSERT_EQ(1, firstParticles);
+}
+
+TEST_F(TestTree, splitNodeTwice) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Tree tree = initalizeTree();
+    createRootNode(&tree, BOX);
+
+    Particle P[2];
+    P[1].leafIndex = 0;
+    P[1].Pos[0] = drand48();
+    P[1].Pos[1] = drand48();
+    P[1].Pos[2] = drand48();
+
+    tree.particleCounts[0] = 1;
+    tree.firstParticle[0] = 1;
+    for (int i = 1; i < 9; ++i) {
+        tree.parentNodes[i] = 1;
+    }
+
+    ASSERT_EQ(1, tree.nodeCount);
+    ASSERT_EQ(0u, tree.nextNodes[0]);
+
+    ASSERT_NO_FATAL_FAILURE(splitNode(P, 0, &tree, BOX));
+    ASSERT_NO_FATAL_FAILURE(splitNode(P, 1, &tree, BOX));
+
+    ASSERT_EQ(17, tree.nodeCount);
+    ASSERT_EQ(1u, tree.nextNodes[0]);
+
+    const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
+
+    ASSERT_FALSE(nodeIsLeaf(&tree, 0));
+
+    int foundParticles = 0, firstParticles = 0;
+
+    // First level
+    for (int i = 0, l = 1; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            for (int k = 0; k < 2; ++k, ++l) {
+                double x, y, z;
+                key2Coord(tree.nodes[l], &x, &y, &z, BOX);
+
+                ASSERT_EQ(i * d[0], x) << " at l = " << l;
+                ASSERT_EQ(j * d[1], y) << " at l = " << l;
+                ASSERT_EQ(k * d[2], z) << " at l = " << l;
+
+                ASSERT_EQ(1u, tree.nodes[l].level) << " at l = " << l;
+
+                if (l == 1) {
+                    ASSERT_FALSE(nodeIsLeaf(&tree, l));
+                } else {
+                    ASSERT_TRUE(nodeIsLeaf(&tree, l));
+
+                    foundParticles += tree.particleCounts[l];
+                    firstParticles += tree.firstParticle[l];
+                }
+                ASSERT_EQ(0u, tree.parentNodes[l]);
+                const unsigned int nextNode = (l == 1 ? 9 : (l < 8 ? l+1 : 0));
+                ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
+                printf("l = %d found %d first %d\n", l, tree.particleCounts[l], tree.firstParticle[l]);
+            }
+        }
+    }
+    ASSERT_TRUE(foundParticles == 0 || foundParticles == 1);
+    ASSERT_TRUE(firstParticles == 0 || firstParticles == 1);
+    printf("\n");
+
+    //Second level
+    const double d2[3] = {0.25*BOX[0], 0.25*BOX[1], 0.25*BOX[2]};
+
+    for (int i = 0, l = 9; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            for (int k = 0; k < 2; ++k, ++l) {
+                double x, y, z;
+                key2Coord(tree.nodes[l], &x, &y, &z, BOX);
+
+                ASSERT_EQ(i * d2[0], x) << " at l = " << l;
+                ASSERT_EQ(j * d2[1], y) << " at l = " << l;
+                ASSERT_EQ(k * d2[2], z) << " at l = " << l;
+
+                ASSERT_EQ(2u, tree.nodes[l].level) << " at l = " << l;
+
+                ASSERT_TRUE(nodeIsLeaf(&tree, l));
+                ASSERT_EQ(1u, tree.parentNodes[l]);
+                const unsigned int nextNode = (l < 16 ? l+1 : 2); //jump back to leaf in level 1 on the last
+                ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
+
+                foundParticles += tree.particleCounts[l];
+                firstParticles += tree.firstParticle[l];
+                printf("l = %d found %d first %d\n", l, tree.particleCounts[l], tree.firstParticle[l]);
             }
         }
     }

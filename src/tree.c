@@ -23,6 +23,7 @@ Tree initalizeTree() {
     tree.firstParticle = calloc(MAXLEAVES, sizeof(int));
     tree.particleCounts = calloc(MAXLEAVES, sizeof(int));
     tree.parentNodes = calloc(MAXLEAVES, sizeof(unsigned int));
+    tree.nextNodes = calloc(MAXLEAVES, sizeof(unsigned int));
 
     tree.nodeCount = 0;
 
@@ -71,11 +72,17 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
     const int parentLevel = key2Depth(parent);
 
     //Particle to redistribute
-    const int epart = tree->firstParticle[l];
+    int epart = -1;
+    if (tree->particleCounts[l] > 0) {
+        epart = tree->firstParticle[l];
+    }
 
     // @todo Do I need to track these stats for the non leaf nodes?
     tree->firstParticle[l] = -1; // Minus to mark it is not a leaf
     tree->particleCounts[l] = 0;
+
+    const unsigned int nextLeaf = tree->nextNodes[l];
+    tree->nextNodes[l] = tree->nodeCount; //First subnode
 
     double newSize[3];
     for (int i = 0; i < 3; ++i) {
@@ -93,8 +100,12 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
 
                 tree->nodes[s] = node;
                 tree->parentNodes[s] = l;
+                // @todo do that here or later?
+                if (s > tree->nodeCount) {
+                    tree->nextNodes[s-1] = s;
+                }
 
-                if (coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
+                if (epart >= 0 && coordInsideNode(P[epart].Pos[0], P[epart].Pos[1], P[epart].Pos[2], node, BOX)) {
                     P[epart].leafIndex = s;
                     tree->particleCounts[s] = 1;
                     tree->firstParticle[s] = epart;
@@ -102,6 +113,7 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
             }
         }
     }
+    tree->nextNodes[tree->nodeCount+7] = nextLeaf;
     tree->nodeCount += 8;
 }
 
@@ -245,6 +257,7 @@ bool nodeContainsLeaf(Morton node, Morton leaf) {
 }
 
 void freeTreeContents(Tree *tree) {
+    free(tree->nextNodes);
     free(tree->parentNodes);
     free(tree->particleCounts);
     free(tree->firstParticle);

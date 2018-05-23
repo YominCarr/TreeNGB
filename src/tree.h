@@ -19,8 +19,10 @@ struct Tree {
     Morton *nodes;
     int *firstParticle;
     int *particleCounts; // if negative the node is not a leaf
+    //@todo do I actually need to count particles? nodes probably dont matter, leafs have 1 or 0
     unsigned int *parentNodes;
-    //@todo do I actually need to count if it's either 0 or 1?
+    //@todo could get rid of parentNodes if we traverse only downwards instead of up and then down
+    unsigned int *nextNodes;
     int nodeCount;
 };
 
