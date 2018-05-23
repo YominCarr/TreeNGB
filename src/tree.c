@@ -32,8 +32,8 @@ Tree initalizeTree() {
 void createRootNode(Tree *tree, const double *BOX) {
     tree->nodeCount = 1;
 
-    const Morton node = coord2Key(0.0, 0.0, 0.0, BOX);
-    tree->nodes[0] = node;
+    tree->nodes[0] = coord2Key(0.0, 0.0, 0.0, BOX);
+    tree->nodes[0].level = 0;
 
 }
 
