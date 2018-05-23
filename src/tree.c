@@ -194,7 +194,7 @@ int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, i
         node = tree->nodes[nodeIndex];
     }
 
-    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, node);
+    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, nodeIndex);
     return found;
 }
 
@@ -221,22 +221,24 @@ unsigned int getParentNode(unsigned int nodeIndex, const Tree* tree) {
 }
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
-                               Morton node) {
-    Morton leaf = getFirstLeafInNode(node);
+                               unsigned int nodeIndex) {
+    Morton node = tree->nodes[nodeIndex];
+    unsigned int leafIndex = getFirstLeafInNode(node);
+    Morton leaf = tree->nodes[leafIndex];
     int found = 0;
 
     do {
         found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leaf);
-        leaf = getNextLeaf(leaf);
+        leafIndex = getNextLeaf(leafIndex, tree);
+        leaf = tree->nodes[leafIndex];
     } while(nodeContainsLeaf(node, leaf));
 
     return found;
 }
 
-Morton getFirstLeafInNode(Morton node) {
+unsigned int getFirstLeafInNode(Morton node) {
     fprintf(stderr, "Implement getFirstLeafInNode!\n");
-    Morton result;
-    return result;
+    return 0;
 }
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
@@ -245,10 +247,8 @@ int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const 
     return 0;
 }
 
-Morton getNextLeaf(Morton leaf) {
-    fprintf(stderr, "Implement getNextLeaf!\n");
-    Morton result;
-    return result;
+unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree) {
+    return tree->nextNodes[leafIndex];
 }
 
 bool nodeContainsLeaf(Morton node, Morton leaf) {

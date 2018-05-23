@@ -140,6 +140,7 @@ TEST_F(TestTree, splitRootNode) {
                 ASSERT_EQ(0u, tree.parentNodes[l]);
                 const unsigned int nextNode = (l < 8 ? l+1 : 0);
                 ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
+                ASSERT_EQ(nextNode, getNextLeaf(l, &tree)) << " at l = " << l;
 
                 foundParticles += tree.particleCounts[l];
                 firstParticles += tree.firstParticle[l];
@@ -207,13 +208,12 @@ TEST_F(TestTree, splitNodeTwice) {
                 ASSERT_EQ(0u, tree.parentNodes[l]);
                 const unsigned int nextNode = (l == 1 ? 9 : (l < 8 ? l+1 : 0));
                 ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
-                printf("l = %d found %d first %d\n", l, tree.particleCounts[l], tree.firstParticle[l]);
+                ASSERT_EQ(nextNode, getNextLeaf(l, &tree)) << " at l = " << l;
             }
         }
     }
     ASSERT_TRUE(foundParticles == 0 || foundParticles == 1);
     ASSERT_TRUE(firstParticles == 0 || firstParticles == 1);
-    printf("\n");
 
     //Second level
     const double d2[3] = {0.25*BOX[0], 0.25*BOX[1], 0.25*BOX[2]};
@@ -234,10 +234,10 @@ TEST_F(TestTree, splitNodeTwice) {
                 ASSERT_EQ(1u, tree.parentNodes[l]);
                 const unsigned int nextNode = (l < 16 ? l+1 : 2); //jump back to leaf in level 1 on the last
                 ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
+                ASSERT_EQ(nextNode, getNextLeaf(l, &tree)) << " at l = " << l;
 
                 foundParticles += tree.particleCounts[l];
                 firstParticles += tree.firstParticle[l];
-                printf("l = %d found %d first %d\n", l, tree.particleCounts[l], tree.firstParticle[l]);
             }
         }
     }

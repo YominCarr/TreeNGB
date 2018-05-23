@@ -57,10 +57,10 @@ void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const doubl
 unsigned int getParentNode(unsigned int nodeIndex, const Tree *tree);
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
-                               Morton node);
+                               unsigned int node);
 
-Morton getFirstLeafInNode(Morton node);
-Morton getNextLeaf(Morton leaf);
+unsigned int getFirstLeafInNode(Morton node);
+unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree);
 bool nodeContainsLeaf(Morton node, Morton leaf);
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
