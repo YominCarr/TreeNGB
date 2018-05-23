@@ -231,3 +231,15 @@ TEST_F(TestTree, nodeSphereInteraction) {
 
     ASSERT_FALSE(nodeSurroundsSphere(node, center, radius, BOX));
 }
+
+TEST_F(TestTree, neighbourFindingInNode) {
+    bool implementedTest = false;
+    ASSERT_TRUE(implementedTest);
+    //Test: findNeighboursInNode
+}
+
+TEST_F(TestTree, neighbourFinding) {
+    bool implementedTest = false;
+    ASSERT_TRUE(implementedTest);
+    //Test: findNgb against a brute force neighbour finder
+}

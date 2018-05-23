@@ -174,11 +174,12 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
 }
 
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
-    const unsigned int leafIndex = P[ipart].leafIndex;
-    Morton node = tree->nodes[leafIndex];
+    unsigned int nodeIndex = P[ipart].leafIndex;
+    Morton node = tree->nodes[nodeIndex];
 
     while (isNotRootNode(node) || !nodeSurroundsSphere(node, P[ipart].Pos, hsml, BOX)) {
-        node = getParentNode(node);
+        nodeIndex = getParentNode(nodeIndex, tree);
+        node = tree->nodes[nodeIndex];
     }
 
     const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, node);
@@ -203,11 +204,8 @@ void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const doubl
     }
 }
 
-Morton getParentNode(Morton node) {
-    fprintf(stderr, "Implement getParentNode!\n");
-    // @todo In principle easy but requires a lookup Morton -> index; consider saving indices in particles instead
-    Morton result;
-    return result;
+unsigned int getParentNode(unsigned int nodeIndex, const Tree* tree) {
+    return tree->parentNodes[nodeIndex];
 }
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
