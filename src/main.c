@@ -30,8 +30,10 @@ int main(int argc, char *argv[]) {
     printf("Build tree\n\n");
     Tree tree = buildTree(P, NPART, BOX);
 
+    printf("Search for neighbours\n\n");
     int* ngblist = calloc(NGBMAX, sizeof(int));
     int found = findNGB(P, 0, 0.1, &tree, ngblist, BOX);
+    printf("Found %d neighbours of particle 0 in distance 0.1\n\n", found);
 
     freeTreeContents(&tree);
     free(P);

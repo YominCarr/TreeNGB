@@ -64,7 +64,7 @@ unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree);
 bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]);
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
-                         Morton leaf);
+                         unsigned int leafIndex);
 
 
 void freeTreeContents(Tree *tree);

@@ -361,6 +361,13 @@ TEST_F(TestTree, leafInsideNode) {
     ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
 }
 
+TEST_F(TestTree, neighbourFindingInLeaf)
+{
+    bool implementedTest = false;
+    ASSERT_TRUE(implementedTest);
+    //Test: findNeighboursInLeaf
+}
+
 TEST_F(TestTree, neighbourFindingInNode) {
     bool implementedTest = false;
     ASSERT_TRUE(implementedTest);

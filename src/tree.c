@@ -4,6 +4,7 @@
 #include <math.h>
 #include "tree.h"
 #include "geometry.h"
+#include "particle.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -224,11 +225,11 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
                                unsigned int nodeIndex, const double BOX[3]) {
     Morton node = tree->nodes[nodeIndex];
     unsigned int leafIndex = getFirstSubnodeInNode(nodeIndex, tree);
-    Morton leaf = tree->nodes[leafIndex];
+    Morton leaf;
     int found = 0;
 
     do {
-        found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leaf);
+        found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leafIndex);
         leafIndex = getNextLeaf(leafIndex, tree);
         leaf = tree->nodes[leafIndex];
     } while(nodeContainsLeaf(node, leaf, BOX));
@@ -241,9 +242,24 @@ unsigned int getFirstSubnodeInNode(unsigned int nodeIndex, const Tree *tree) {
 }
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
-                         Morton leaf) {
-    fprintf(stderr, "Implement findNeighboursInLeaf!\n");
-    return 0;
+                         unsigned int leafIndex) {
+    int found = 0;
+    //Assume there can be only 1 particle per leaf anyway
+    const int possibleNeighbour = tree->firstParticle[leafIndex];
+
+    double r2 = 0.0, d;
+    for (int i = 0; i < 3; ++i) {
+        d = P[ipart].Pos[i] - P[possibleNeighbour].Pos[i];
+        r2 += d*d;
+    }
+
+    if (r2 <= hsml*hsml) {
+        //Is a neighbour
+        found = 1;
+        ngblist[ingb] = possibleNeighbour;
+    }
+
+    return found;
 }
 
 unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree) {
