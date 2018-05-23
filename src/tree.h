@@ -59,7 +59,7 @@ unsigned int getParentNode(unsigned int nodeIndex, const Tree *tree);
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
                                unsigned int node);
 
-unsigned int getFirstLeafInNode(Morton node);
+unsigned int getFirstSubnodeInNode(unsigned int nodeIndex, const Tree *tree);
 unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree);
 bool nodeContainsLeaf(Morton node, Morton leaf);
 

@@ -223,7 +223,7 @@ unsigned int getParentNode(unsigned int nodeIndex, const Tree* tree) {
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
                                unsigned int nodeIndex) {
     Morton node = tree->nodes[nodeIndex];
-    unsigned int leafIndex = getFirstLeafInNode(node);
+    unsigned int leafIndex = getFirstSubnodeInNode(nodeIndex, tree);
     Morton leaf = tree->nodes[leafIndex];
     int found = 0;
 
@@ -236,9 +236,8 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
     return found;
 }
 
-unsigned int getFirstLeafInNode(Morton node) {
-    fprintf(stderr, "Implement getFirstLeafInNode!\n");
-    return 0;
+unsigned int getFirstSubnodeInNode(unsigned int nodeIndex, const Tree *tree) {
+    return tree->nextNodes[nodeIndex];
 }
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,

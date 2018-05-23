@@ -122,6 +122,7 @@ TEST_F(TestTree, splitRootNode) {
     const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
 
     ASSERT_FALSE(nodeIsLeaf(&tree, 0));
+    ASSERT_EQ(1u, getFirstSubnodeInNode(0, &tree));
 
     int foundParticles = 0, firstParticles = 0;
     for (int i = 0, l = 1; i < 2; ++i) {
@@ -181,6 +182,7 @@ TEST_F(TestTree, splitNodeTwice) {
     const double d[3] = {0.5*BOX[0], 0.5*BOX[1], 0.5*BOX[2]};
 
     ASSERT_FALSE(nodeIsLeaf(&tree, 0));
+    ASSERT_EQ(1u, getFirstSubnodeInNode(0, &tree));
 
     int foundParticles = 0, firstParticles = 0;
 
@@ -197,18 +199,21 @@ TEST_F(TestTree, splitNodeTwice) {
 
                 ASSERT_EQ(1u, tree.nodes[l].level) << " at l = " << l;
 
+                const unsigned int nextNode = (l == 1 ? 9 : (l < 8 ? l+1 : 0));
+
                 if (l == 1) {
                     ASSERT_FALSE(nodeIsLeaf(&tree, l));
+                    ASSERT_EQ(1u, getFirstSubnodeInNode(0, &tree)) << " at l = " << l;
                 } else {
                     ASSERT_TRUE(nodeIsLeaf(&tree, l));
+                    ASSERT_EQ(nextNode, getNextLeaf(l, &tree)) << " at l = " << l;
 
                     foundParticles += tree.particleCounts[l];
                     firstParticles += tree.firstParticle[l];
                 }
+
                 ASSERT_EQ(0u, tree.parentNodes[l]);
-                const unsigned int nextNode = (l == 1 ? 9 : (l < 8 ? l+1 : 0));
                 ASSERT_EQ(nextNode, tree.nextNodes[l]) << " at l = " << l;
-                ASSERT_EQ(nextNode, getNextLeaf(l, &tree)) << " at l = " << l;
             }
         }
     }
