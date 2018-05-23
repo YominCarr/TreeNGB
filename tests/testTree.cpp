@@ -339,6 +339,28 @@ TEST_F(TestTree, nodeSphereInteraction) {
     ASSERT_FALSE(nodeSurroundsSphere(node, center, radius, BOX));
 }
 
+TEST_F(TestTree, leafInsideNode) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    Morton node = coord2Key(0.5, 0.5, 0.5, BOX);
+    node.level = 2;
+
+    Morton leaf = coord2Key(0.0, 0.0, 0.0, BOX);
+    leaf.level = 3;
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+
+    leaf = coord2Key(0.0, 0.6, 0.6, BOX);
+    leaf.level = 3;
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+
+    leaf = coord2Key(0.5, 0.8, 0.6, BOX);
+    leaf.level = 3;
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+
+    leaf = coord2Key(0.5, 0.6, 0.6, BOX);
+    leaf.level = 3;
+    ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
+}
+
 TEST_F(TestTree, neighbourFindingInNode) {
     bool implementedTest = false;
     ASSERT_TRUE(implementedTest);

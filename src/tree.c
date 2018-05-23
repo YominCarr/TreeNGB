@@ -194,7 +194,7 @@ int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, i
         node = tree->nodes[nodeIndex];
     }
 
-    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, nodeIndex);
+    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, nodeIndex, BOX);
     return found;
 }
 
@@ -221,7 +221,7 @@ unsigned int getParentNode(unsigned int nodeIndex, const Tree* tree) {
 }
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
-                               unsigned int nodeIndex) {
+                               unsigned int nodeIndex, const double BOX[3]) {
     Morton node = tree->nodes[nodeIndex];
     unsigned int leafIndex = getFirstSubnodeInNode(nodeIndex, tree);
     Morton leaf = tree->nodes[leafIndex];
@@ -231,7 +231,7 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
         found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leaf);
         leafIndex = getNextLeaf(leafIndex, tree);
         leaf = tree->nodes[leafIndex];
-    } while(nodeContainsLeaf(node, leaf));
+    } while(nodeContainsLeaf(node, leaf, BOX));
 
     return found;
 }
@@ -250,9 +250,27 @@ unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree) {
     return tree->nextNodes[leafIndex];
 }
 
-bool nodeContainsLeaf(Morton node, Morton leaf) {
-    fprintf(stderr, "Implement nodeContainsLeaf!\n");
-    return 0;
+// @todo all this seems a bit inefficient, can I do better?
+bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]) {
+    double nodeSideLength[3];
+    getNodeSize(nodeSideLength, node, BOX);
+
+    double x, y, z;
+    key2Coord(node, &x, &y, &z, BOX);
+    Morton nextNode = coord2Key(x+nodeSideLength[0], y+nodeSideLength[1], z+nodeSideLength[2], BOX);
+
+    //if lower corner of leaf is smaller than higher corner of node bigger or equal than lower corner then it is inside
+    if (leaf.x < node.x || leaf.x >= nextNode.x) {
+        return false;
+    }
+    if (leaf.y < node.y || leaf.y >= nextNode.y) {
+        return false;
+    }
+    if (leaf.z < node.z || leaf.z >= nextNode.z) {
+        return false;
+    }
+
+    return true;
 }
 
 void freeTreeContents(Tree *tree) {
