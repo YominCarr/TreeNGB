@@ -323,12 +323,12 @@ TEST_F(TestTree, rootNodeDetection) {
     Tree tree = initalizeTree();
     createRootNode(&tree, BOX);
 
-    ASSERT_TRUE(isNotRootNode(tree.nodes[0]));
+    ASSERT_FALSE(isNotRootNode(tree.nodes[0]));
 
     Morton morton;
-    morton.key = drand48() * std::numeric_limits<uint64_t>::max();
+    morton.key = drand48() * (std::numeric_limits<uint64_t>::max() - 1) + 1;
 
-    ASSERT_FALSE(isNotRootNode(morton));
+    ASSERT_TRUE(isNotRootNode(morton));
 }
 
 TEST_F(TestTree, nodeToBoxTransformation) {

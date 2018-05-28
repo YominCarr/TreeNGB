@@ -196,7 +196,7 @@ unsigned int getTopNodeIndex(const Particle *P, const int ipart, const double hs
     unsigned int nodeIndex = P[ipart].leafIndex;
     Morton node = tree->nodes[nodeIndex];
 
-    while (isNotRootNode(node) || !nodeSurroundsSphere(node, P[ipart].Pos, hsml, BOX)) {
+    while (isNotRootNode(node) && !nodeSurroundsSphere(node, P[ipart].Pos, hsml, BOX)) {
         nodeIndex = getParentNode(nodeIndex, tree);
         node = tree->nodes[nodeIndex];
     }
@@ -204,7 +204,7 @@ unsigned int getTopNodeIndex(const Particle *P, const int ipart, const double hs
 }
 
 bool isNotRootNode(Morton node) {
-    return node.key == 0u;
+    return node.key != 0u;
 }
 
 bool nodeSurroundsSphere(Morton node, const double *center, const double radius, const double *BOX) {
