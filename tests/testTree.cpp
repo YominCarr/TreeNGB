@@ -388,7 +388,7 @@ TEST_F(TestTree, neighbourFindingInLeaf)
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             if (Pold[i].Pos[0] == P[j].Pos[0] && Pold[i].Pos[1] == P[j].Pos[1] && Pold[i].Pos[2] == P[j].Pos[2]) {
-                sort[i] = j; // @todo or the other way round?
+                sort[i] = j;
                 break;
             }
         }
@@ -428,7 +428,24 @@ TEST_F(TestTree, neighbourFinding) {
     P[4].Pos[0] = 0.5; P[4].Pos[1] = 0.5; P[4].Pos[2] = 0.7; //yes
     P[5].Pos[0] = 0.4; P[5].Pos[1] = 0.45; P[5].Pos[2] = 0.6; //yes
 
+    // Copy to track back after resort
+    Particle Pold[6];
+    for (int i = 0; i < 6; ++i) {
+        Pold[i] = P[i];
+    }
+
     Tree tree = buildTree(P, 6, BOX);
+
+    // Track back
+    int isort[6];
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            if (Pold[i].Pos[0] == P[j].Pos[0] && Pold[i].Pos[1] == P[j].Pos[1] && Pold[i].Pos[2] == P[j].Pos[2]) {
+                isort[j] = i;
+                break;
+            }
+        }
+    }
 
     int ngblist[NGBMAX];
     int found;
@@ -436,8 +453,19 @@ TEST_F(TestTree, neighbourFinding) {
 
     ASSERT_EQ(3, found);
 
-    //@todo check that 3, 4, 5 are these found ones in arbitrary ordering; beware of particle re-sort!
+    for (int i = 0; i < 3; ++i) {
+        int ngb = isort[ngblist[i]];
+        // @todo each only once!
+        ASSERT_TRUE(ngb == 3 || ngb == 4 || ngb == 5) << " with ngb = " << ngb;
+    }
 
     freeTreeContents(&tree);
+}
+
+TEST_F(TestTree, complexNeighbourFindingAgainstBruteForce) {
+    bool implementedTest = false;
+    ASSERT_TRUE(implementedTest);
+    //Test: findNGB
+
     //@todo Test: findNgb more complicated against a brute force neighbour finder
 }
