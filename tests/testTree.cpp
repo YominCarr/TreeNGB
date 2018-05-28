@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <morton.h>
 #include <tree.h>
+#include <particle.h>
 
 class TestTree : public testing::Test
 {
@@ -363,9 +364,51 @@ TEST_F(TestTree, leafInsideNode) {
 
 TEST_F(TestTree, neighbourFindingInLeaf)
 {
-    bool implementedTest = false;
-    ASSERT_TRUE(implementedTest);
-    //Test: findNeighboursInLeaf
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Particle P[6];
+    P[0].Pos[0] = P[0].Pos[1] = P[0].Pos[2] = 0.5; //center of search
+    P[1].Pos[0] = P[1].Pos[1] = P[1].Pos[2] = 0.3; //no
+    P[2].Pos[0] = P[2].Pos[1] = P[2].Pos[2] = 0.7; //no
+    P[3].Pos[0] = P[3].Pos[1] = P[3].Pos[2] = 0.6; //yes
+    P[4].Pos[0] = 0.5; P[4].Pos[1] = 0.5; P[4].Pos[2] = 0.7; //yes
+    P[5].Pos[0] = 0.4; P[5].Pos[1] = 0.45; P[5].Pos[2] = 0.6; //yes
+
+    // Copy to track back after resort
+    Particle Pold[6];
+    for (int i = 0; i < 6; ++i) {
+        Pold[i] = P[i];
+    }
+
+    // Resorts particles by key internally
+    Tree tree = buildTree(P, 6, BOX);
+
+    // Track back
+    int sort[6];
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            if (Pold[i].Pos[0] == P[j].Pos[0] && Pold[i].Pos[1] == P[j].Pos[1] && Pold[i].Pos[2] == P[j].Pos[2]) {
+                sort[i] = j; // @todo or the other way round?
+                break;
+            }
+        }
+    }
+
+    int ngblist[NGBMAX];
+    int found = 0;
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_NO_FATAL_FAILURE(found += findNeighboursInLeaf(P, sort[0], 0.2, &tree, ngblist, found, P[sort[i]].leafIndex);)
+                                    << " at i = " << i;
+        ASSERT_EQ(0, found) << " at i = " << i;
+    }
+    for (int i = 3, j = 0; i < 6; ++i, ++j) {
+        ASSERT_NO_FATAL_FAILURE(found += findNeighboursInLeaf(P, sort[0], 0.2, &tree, ngblist, found, P[sort[i]].leafIndex);)
+                                    << " i = " << i;
+        ASSERT_EQ(j+1, found) << " at i = " << i;
+        ASSERT_EQ(sort[i], ngblist[j]) << " at i = " << i;
+    }
+
+    freeTreeContents(&tree);
 }
 
 TEST_F(TestTree, neighbourFindingInNode) {
@@ -375,7 +418,26 @@ TEST_F(TestTree, neighbourFindingInNode) {
 }
 
 TEST_F(TestTree, neighbourFinding) {
-    bool implementedTest = false;
-    ASSERT_TRUE(implementedTest);
-    //Test: findNgb against a brute force neighbour finder
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Particle P[6];
+    P[0].Pos[0] = P[0].Pos[1] = P[0].Pos[2] = 0.5; //center of search
+    P[1].Pos[0] = P[1].Pos[1] = P[1].Pos[2] = 0.3; //no
+    P[2].Pos[0] = P[2].Pos[1] = P[2].Pos[2] = 0.7; //no
+    P[3].Pos[0] = P[3].Pos[1] = P[3].Pos[2] = 0.6; //yes
+    P[4].Pos[0] = 0.5; P[4].Pos[1] = 0.5; P[4].Pos[2] = 0.7; //yes
+    P[5].Pos[0] = 0.4; P[5].Pos[1] = 0.45; P[5].Pos[2] = 0.6; //yes
+
+    Tree tree = buildTree(P, 6, BOX);
+
+    int ngblist[NGBMAX];
+    int found;
+    ASSERT_NO_FATAL_FAILURE(found = findNGB(P, 0, 0.2, &tree, ngblist, BOX););
+
+    ASSERT_EQ(3, found);
+
+    //@todo check that 3, 4, 5 are these found ones in arbitrary ordering; beware of particle re-sort!
+
+    freeTreeContents(&tree);
+    //@todo Test: findNgb more complicated against a brute force neighbour finder
 }

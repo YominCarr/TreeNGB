@@ -247,6 +247,11 @@ int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const 
     //Assume there can be only 1 particle per leaf anyway
     const int possibleNeighbour = tree->firstParticle[leafIndex];
 
+    if (possibleNeighbour == ipart) {
+        // Do not count particle as its own neighbour
+        return found;
+    }
+
     double r2 = 0.0, d;
     for (int i = 0; i < 3; ++i) {
         d = P[ipart].Pos[i] - P[possibleNeighbour].Pos[i];

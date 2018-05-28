@@ -12,7 +12,8 @@ extern "C" {
 
 #define NGBMAX 1000
 #define MAXDEPTH MAXLEVEL
-#define MAXLEAVES (1 << 29) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
+#define MAXLEAVES (1 << 28) //More goes beyond uint in MAXLEAFS * sizeof(Morton))
+//@todo why does 29 not work, should fit because sizeof(Morton) is (1 << 3); maybe memory in general overextended?
 #define MAXLEAFSIZE 1 //Needs to be one otherwise we can not find all previously added particles during node splitting
 
 struct Tree {
