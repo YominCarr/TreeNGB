@@ -1,13 +1,35 @@
+#include <future>
 #include <gtest/gtest.h>
 #include <morton.h>
 #include <tree.h>
-#include <particle.h>
+
+#define TEST_TIMEOUT_BEGIN   std::promise<bool> promisedFinished; \
+                              auto futureResult = promisedFinished.get_future(); \
+                              std::thread([&](std::promise<bool>& finished) {
+
+#define TEST_TIMEOUT_FAIL_END(X)  finished.set_value(true); \
+                                   }, std::ref(promisedFinished)).detach(); \
+                                   EXPECT_TRUE(futureResult.wait_for(std::chrono::milliseconds(X)) != std::future_status::timeout);
+
+#define TEST_TIMEOUT_SUCCESS_END(X)  finished.set_value(true); \
+                                      }, std::ref(promisedFinished)).detach(); \
+                                      EXPECT_FALSE(futureResult.wait_for(std::chrono::milliseconds(X)) != std::future_status::timeout);
 
 class TestTree : public testing::Test
 {
 protected:
     void SetUp(){}
     void TearDown(){}
+
+    unsigned int getRootNode(Tree& tree) {
+        unsigned int nodeIndex = 0;
+        Morton node = tree.nodes[nodeIndex];
+        while (isNotRootNode(node)) {
+            nodeIndex = getParentNode(nodeIndex, &tree);
+            node = tree.nodes[nodeIndex];
+        }
+        return nodeIndex;
+    }
 };
 
 TEST_F(TestTree, treeInitialization)
@@ -411,6 +433,23 @@ TEST_F(TestTree, neighbourFindingInLeaf)
     freeTreeContents(&tree);
 }
 
+TEST_F(TestTree, findRootNode) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    const int N = 100;
+    Particle* P = createRandomParticles(N, BOX);
+
+    Tree tree = buildTree(P, N, BOX);
+
+    unsigned int nodeIndex;
+    TEST_TIMEOUT_BEGIN
+    ASSERT_NO_FATAL_FAILURE(nodeIndex = getRootNode(tree););
+    TEST_TIMEOUT_FAIL_END(1000)
+
+    ASSERT_FALSE(isNotRootNode(tree.nodes[nodeIndex]));
+
+    free(P);
+}
+
 TEST_F(TestTree, neighbourFindingInNode) {
     const double BOX[3] = {1.0, 1.0, 1.0};
 
@@ -444,15 +483,7 @@ TEST_F(TestTree, neighbourFindingInNode) {
 
     int ngblist[NGBMAX];
     int found;
-
-    // Get root node
-    unsigned int nodeIndex = 0;
-    Morton node = tree.nodes[nodeIndex];
-    while (isNotRootNode(node)) {
-        nodeIndex = getParentNode(nodeIndex, &tree);
-        node = tree.nodes[nodeIndex];
-    }
-
+    unsigned int nodeIndex = getRootNode(tree);
     ASSERT_NO_FATAL_FAILURE(found = findNeighboursInNode(P, sort[0], 0.2, &tree, ngblist, nodeIndex, BOX););
 
     ASSERT_EQ(3, found);
