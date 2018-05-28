@@ -52,6 +52,8 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree);
 
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int ngblist[NGBMAX], const double BOX[3]);
 
+
+unsigned int getTopNodeIndex(const Particle *P, const int ipart, const double hsml, const Tree *tree, const double *BOX);
 bool isNotRootNode(Morton node);
 bool nodeSurroundsSphere(Morton node, const double *center, const double radius, const double *BOX);
 void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const double BOX[3]);

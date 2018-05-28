@@ -4,7 +4,6 @@
 #include <math.h>
 #include "tree.h"
 #include "geometry.h"
-#include "particle.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -187,6 +186,13 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
 }
 
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
+    const unsigned int topNodeIndex = getTopNodeIndex(P, ipart, hsml, tree, BOX);
+    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, topNodeIndex, BOX);
+    return found;
+}
+
+unsigned int getTopNodeIndex(const Particle *P, const int ipart, const double hsml, const Tree *tree,
+                             const double *BOX) {
     unsigned int nodeIndex = P[ipart].leafIndex;
     Morton node = tree->nodes[nodeIndex];
 
@@ -194,9 +200,7 @@ int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, i
         nodeIndex = getParentNode(nodeIndex, tree);
         node = tree->nodes[nodeIndex];
     }
-
-    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, nodeIndex, BOX);
-    return found;
+    return nodeIndex;
 }
 
 bool isNotRootNode(Morton node) {

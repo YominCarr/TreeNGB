@@ -412,9 +412,58 @@ TEST_F(TestTree, neighbourFindingInLeaf)
 }
 
 TEST_F(TestTree, neighbourFindingInNode) {
-    bool implementedTest = false;
-    ASSERT_TRUE(implementedTest);
-    //Test: findNeighboursInNode
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Particle P[6];
+    P[0].Pos[0] = P[0].Pos[1] = P[0].Pos[2] = 0.5; //center of search
+    P[1].Pos[0] = P[1].Pos[1] = P[1].Pos[2] = 0.3; //no
+    P[2].Pos[0] = P[2].Pos[1] = P[2].Pos[2] = 0.7; //no
+    P[3].Pos[0] = P[3].Pos[1] = P[3].Pos[2] = 0.6; //yes
+    P[4].Pos[0] = 0.5; P[4].Pos[1] = 0.5; P[4].Pos[2] = 0.7; //yes
+    P[5].Pos[0] = 0.4; P[5].Pos[1] = 0.45; P[5].Pos[2] = 0.6; //yes
+
+    // Copy to track back after resort
+    Particle Pold[6];
+    for (int i = 0; i < 6; ++i) {
+        Pold[i] = P[i];
+    }
+
+    Tree tree = buildTree(P, 6, BOX);
+
+    // Track back
+    int sort[6], isort[6];
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            if (Pold[i].Pos[0] == P[j].Pos[0] && Pold[i].Pos[1] == P[j].Pos[1] && Pold[i].Pos[2] == P[j].Pos[2]) {
+                sort[i] = j;
+                isort[j] = i;
+                break;
+            }
+        }
+    }
+
+    int ngblist[NGBMAX];
+    int found;
+
+    // Get root node
+    unsigned int nodeIndex = 0;
+    Morton node = tree.nodes[nodeIndex];
+    while (isNotRootNode(node)) {
+        nodeIndex = getParentNode(nodeIndex, &tree);
+        node = tree.nodes[nodeIndex];
+    }
+
+    ASSERT_NO_FATAL_FAILURE(found = findNeighboursInNode(P, sort[0], 0.2, &tree, ngblist, nodeIndex, BOX););
+
+    ASSERT_EQ(3, found);
+
+    for (int i = 0; i < 3; ++i) {
+        int ngb = isort[ngblist[i]];
+        // @todo each only once!
+        ASSERT_TRUE(ngb == 3 || ngb == 4 || ngb == 5) << " with ngb = " << ngb;
+    }
+
+    freeTreeContents(&tree);
 }
 
 TEST_F(TestTree, neighbourFinding) {
@@ -437,10 +486,11 @@ TEST_F(TestTree, neighbourFinding) {
     Tree tree = buildTree(P, 6, BOX);
 
     // Track back
-    int isort[6];
+    int sort[6], isort[6];
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             if (Pold[i].Pos[0] == P[j].Pos[0] && Pold[i].Pos[1] == P[j].Pos[1] && Pold[i].Pos[2] == P[j].Pos[2]) {
+                sort[i] = j;
                 isort[j] = i;
                 break;
             }
@@ -449,7 +499,7 @@ TEST_F(TestTree, neighbourFinding) {
 
     int ngblist[NGBMAX];
     int found;
-    ASSERT_NO_FATAL_FAILURE(found = findNGB(P, 0, 0.2, &tree, ngblist, BOX););
+    ASSERT_NO_FATAL_FAILURE(found = findNGB(P, sort[0], 0.2, &tree, ngblist, BOX););
 
     ASSERT_EQ(3, found);
 
