@@ -382,6 +382,13 @@ TEST_F(TestTree, leafInsideNode) {
     leaf = coord2Key(0.5, 0.6, 0.6, BOX);
     leaf.level = 3;
     ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
+
+    node = coord2Key(0.0, 0.0, 0.0, BOX);
+    node.level = 0;
+
+    leaf = coord2Key(0.0, 0.0, 0.25, BOX);
+    leaf.level = 2;
+    ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
 }
 
 TEST_F(TestTree, neighbourFindingInLeaf)

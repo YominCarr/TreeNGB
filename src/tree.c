@@ -291,16 +291,24 @@ bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]) {
 
     double x, y, z;
     key2Coord(node, &x, &y, &z, BOX);
-    Morton nextNode = coord2Key(x+nodeSideLength[0], y+nodeSideLength[1], z+nodeSideLength[2], BOX);
+    x += nodeSideLength[0];
+    y += nodeSideLength[1];
+    z += nodeSideLength[2];
+    Morton nextNode = coord2Key(x, y, z, BOX);
+
+    // nextNode only makes sense if we do not span until the end of the box
+    bool xRoot = (x == BOX[0]);
+    bool yRoot = (y == BOX[1]);
+    bool zRoot = (z == BOX[2]);
 
     //if lower corner of leaf is smaller than higher corner of node bigger or equal than lower corner then it is inside
-    if (leaf.x < node.x || leaf.x >= nextNode.x) {
+    if (!xRoot && (leaf.x < node.x || leaf.x >= nextNode.x)) {
         return false;
     }
-    if (leaf.y < node.y || leaf.y >= nextNode.y) {
+    if (!yRoot && (leaf.y < node.y || leaf.y >= nextNode.y)) {
         return false;
     }
-    if (leaf.z < node.z || leaf.z >= nextNode.z) {
+    if (!zRoot && (leaf.z < node.z || leaf.z >= nextNode.z)) {
         return false;
     }
 
