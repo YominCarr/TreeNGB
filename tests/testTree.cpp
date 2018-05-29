@@ -38,6 +38,9 @@ protected:
     int findNGBBruteForce(Particle *P, const int npart, const int ipart, const double hsml, int ngblist[NGBMAX]) {
         int found = 0;
         for (int jpart = 0; jpart < npart; ++jpart) {
+            if (ipart == jpart) {
+                continue;
+            }
             double d = 0.0, d2 = 0.0;
             for (int k = 0; k < 3; ++k) {
                 d = P[ipart].Pos[k] - P[jpart].Pos[k];
