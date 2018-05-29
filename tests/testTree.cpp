@@ -1,5 +1,6 @@
 #include <future>
 #include <algorithm>
+#include <chrono>
 #include <gtest/gtest.h>
 #include <morton.h>
 #include <tree.h>
@@ -18,6 +19,7 @@
                                       EXPECT_FALSE(futureResult.wait_for(std::chrono::milliseconds(X)) != std::future_status::timeout);
 
 using namespace std;
+using namespace std::chrono;
 
 class TestTree : public testing::Test
 {
@@ -574,19 +576,31 @@ TEST_F(TestTree, neighbourFinding) {
 
 TEST_F(TestTree, complexNeighbourFindingAgainstBruteForce) {
 
-    const int NPART = 1000;
+    const int NPART = 10000;
     double BOX[3] = {1.0, 1.0, 1.0};
 
     Particle *P = createRandomParticles(NPART, BOX);
 
+    const int ipart = drand48() * NPART;
+
+    high_resolution_clock::time_point t0 = high_resolution_clock::now();
+
     Tree tree = buildTree(P, NPART, BOX);
+
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
     int* ngblistTree = static_cast<int*>(calloc(NGBMAX, sizeof(int)));
-    int foundTree = findNGB(P, 0, 0.1, &tree, ngblistTree, BOX);
+    int foundTree = findNGB(P, ipart, 0.1, &tree, ngblistTree, BOX);
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     int* ngblistBruteForce = static_cast<int*>(calloc(NGBMAX, sizeof(int)));
-    int foundBruteForce = findNGBBruteForce(P, NPART, 0, 0.1, ngblistBruteForce);
+    int foundBruteForce = findNGBBruteForce(P, NPART, ipart, 0.1, ngblistBruteForce);
+
+    high_resolution_clock::time_point t3 = high_resolution_clock::now();
 
     ASSERT_EQ(foundBruteForce, foundTree);
+    printf("Found %d neighbours with both methods\n", foundTree);
 
     sort(ngblistTree, ngblistTree+foundTree);
     sort(ngblistBruteForce, ngblistBruteForce+foundBruteForce);
@@ -594,6 +608,17 @@ TEST_F(TestTree, complexNeighbourFindingAgainstBruteForce) {
     for (int i = 0; i < foundTree; ++i) {
         ASSERT_EQ(ngblistBruteForce[i], ngblistTree[i]);
     }
+
+    int64_t buildTree = duration_cast<milliseconds> ( t1 - t0 ).count();
+    int64_t searchTree = duration_cast<milliseconds> ( t2 - t1 ).count();
+    int64_t searchBruteForce = duration_cast<milliseconds> ( t3 - t2 ).count();
+
+    printf("Timings for 1 particle search in a %d particle pool:\
+            \n %ld ms build tree\n %ld ms search tree\n %ld ms search brute force\n",
+           NPART, buildTree, searchTree, searchBruteForce);
+
+    ASSERT_GE(searchBruteForce, searchTree);
+    ASSERT_GE(searchBruteForce*NPART, searchTree*NPART+buildTree);
 
     freeTreeContents(&tree);
     free(P);
