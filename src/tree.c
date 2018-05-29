@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "tree.h"
 #include "geometry.h"
 
@@ -232,6 +233,7 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
     while (! nodeIsLeaf(tree, leafIndex)) {
         leafIndex = getFirstSubnodeInNode(leafIndex, tree);
     }
+    const unsigned int firstLeafIndex = leafIndex;
     Morton leaf;
     int found = 0;
 
@@ -245,7 +247,7 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
         }
 
         leaf = tree->nodes[leafIndex];
-    } while(nodeContainsLeaf(node, leaf, BOX));
+    } while(nodeContainsLeaf(node, leaf, BOX) && leafIndex != firstLeafIndex);
 
     return found;
 }
@@ -256,6 +258,8 @@ unsigned int getFirstSubnodeInNode(unsigned int nodeIndex, const Tree *tree) {
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
                          unsigned int leafIndex) {
+    assert(ingb < NGBMAX);
+
     int found = 0;
     //Assume there can be only 1 particle per leaf anyway
     const int possibleNeighbour = tree->firstParticle[leafIndex];
