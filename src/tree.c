@@ -229,12 +229,21 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
                                unsigned int nodeIndex, const double BOX[3]) {
     Morton node = tree->nodes[nodeIndex];
     unsigned int leafIndex = getFirstSubnodeInNode(nodeIndex, tree);
+    while (! nodeIsLeaf(tree, leafIndex)) {
+        leafIndex = getFirstSubnodeInNode(leafIndex, tree);
+    }
     Morton leaf;
     int found = 0;
 
     do {
         found += findNeighboursInLeaf(P, ipart, hsml, tree, ngblist, found, leafIndex);
         leafIndex = getNextLeaf(leafIndex, tree);
+
+        // @todo really need this? Probably yes
+        while (! nodeIsLeaf(tree, leafIndex)) {
+            leafIndex = getFirstSubnodeInNode(leafIndex, tree);
+        }
+
         leaf = tree->nodes[leafIndex];
     } while(nodeContainsLeaf(node, leaf, BOX));
 
