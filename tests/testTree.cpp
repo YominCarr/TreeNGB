@@ -1,7 +1,9 @@
 #include <future>
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <morton.h>
 #include <tree.h>
+#include <particle.h>
 
 #define TEST_TIMEOUT_BEGIN   std::promise<bool> promisedFinished; \
                               auto futureResult = promisedFinished.get_future(); \
@@ -14,6 +16,8 @@
 #define TEST_TIMEOUT_SUCCESS_END(X)  finished.set_value(true); \
                                       }, std::ref(promisedFinished)).detach(); \
                                       EXPECT_FALSE(futureResult.wait_for(std::chrono::milliseconds(X)) != std::future_status::timeout);
+
+using namespace std;
 
 class TestTree : public testing::Test
 {
@@ -29,6 +33,21 @@ protected:
             node = tree.nodes[nodeIndex];
         }
         return nodeIndex;
+    }
+
+    int findNGBBruteForce(Particle *P, const int npart, const int ipart, const double hsml, int ngblist[NGBMAX]) {
+        int found = 0;
+        for (int jpart = 0; jpart < npart; ++jpart) {
+            double d = 0.0, d2 = 0.0;
+            for (int k = 0; k < 3; ++k) {
+                d = P[ipart].Pos[k] - P[jpart].Pos[k];
+                d2 += d*d;
+            }
+            if (d2 <= hsml*hsml) {
+                ngblist[found++] = jpart;
+            }
+        }
+        return found;
     }
 };
 
@@ -551,9 +570,28 @@ TEST_F(TestTree, neighbourFinding) {
 }
 
 TEST_F(TestTree, complexNeighbourFindingAgainstBruteForce) {
-    bool implementedTest = false;
-    ASSERT_TRUE(implementedTest);
-    //Test: findNGB
 
-    //@todo Test: findNgb more complicated against a brute force neighbour finder
+    const int NPART = 1000;
+    double BOX[3] = {1.0, 1.0, 1.0};
+
+    Particle *P = createRandomParticles(NPART, BOX);
+
+    Tree tree = buildTree(P, NPART, BOX);
+    int* ngblistTree = static_cast<int*>(calloc(NGBMAX, sizeof(int)));
+    int foundTree = findNGB(P, 0, 0.1, &tree, ngblistTree, BOX);
+
+    int* ngblistBruteForce = static_cast<int*>(calloc(NGBMAX, sizeof(int)));
+    int foundBruteForce = findNGBBruteForce(P, NPART, 0, 0.1, ngblistBruteForce);
+
+    ASSERT_EQ(foundBruteForce, foundTree);
+
+    sort(ngblistTree, ngblistTree+foundTree);
+    sort(ngblistBruteForce, ngblistBruteForce+foundBruteForce);
+
+    for (int i = 0; i < foundTree; ++i) {
+        ASSERT_EQ(ngblistBruteForce[i], ngblistTree[i]);
+    }
+
+    freeTreeContents(&tree);
+    free(P);
 }
