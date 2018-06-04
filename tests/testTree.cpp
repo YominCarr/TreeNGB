@@ -609,13 +609,13 @@ TEST_F(TestTree, complexNeighbourFindingAgainstBruteForce) {
         ASSERT_EQ(ngblistBruteForce[i], ngblistTree[i]);
     }
 
-    int64_t buildTree = duration_cast<milliseconds> ( t1 - t0 ).count();
-    int64_t searchTree = duration_cast<milliseconds> ( t2 - t1 ).count();
-    int64_t searchBruteForce = duration_cast<milliseconds> ( t3 - t2 ).count();
+    int64_t buildTree = duration_cast<microseconds> ( t1 - t0 ).count();
+    int64_t searchTree = duration_cast<microseconds> ( t2 - t1 ).count();
+    int64_t searchBruteForce = duration_cast<microseconds> ( t3 - t2 ).count();
 
     printf("Timings for 1 particle search in a %d particle pool:\
-            \n %ld ms build tree\n %ld ms search tree\n %ld ms search brute force\n",
-           NPART, buildTree, searchTree, searchBruteForce);
+            \n %g ms build tree\n %g ms search tree\n %g ms search brute force\n",
+           NPART, buildTree/1000.0, searchTree/1000.0, searchBruteForce/1000.0);
 
     ASSERT_GE(searchBruteForce, searchTree);
     ASSERT_GE(searchBruteForce*NPART, searchTree*NPART+buildTree);
