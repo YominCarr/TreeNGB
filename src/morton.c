@@ -22,9 +22,9 @@ int key2Depth(const Morton key) {
 }
 
 COORD translateCoordFromDouble(const double c, const double box) {
-    return c / box * pow(2.0, MAXLEVEL);
+    return c / box * (1 << MAXLEVEL);
 }
 
 double translateCoordToDouble(const COORD c, const double box) {
-    return c * box / pow(2.0, MAXLEVEL);
+    return c * box / (1 << MAXLEVEL);
 }
