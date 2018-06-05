@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint32_t COORD;
 
@@ -25,6 +26,13 @@ int key2Depth(const Morton key);
 
 COORD translateCoordFromDouble(const double c, const double box);
 double translateCoordToDouble(const COORD c, const double box);
+
+void getNodeSize(double* sideLength, const Morton key, const double BOX[3]);
+
+Morton translateToNextKey(const Morton key);
+COORD translateToNextCoord(const COORD c, const unsigned int level);
+
+bool isLastCoordInDimension(const COORD c, const unsigned int level);
 
 #ifdef __cplusplus
 }

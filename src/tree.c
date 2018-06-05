@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "tree.h"
 #include "geometry.h"
+#include "morton.h"
 
 Tree buildTree(Particle *P, const int npart, const double BOX[3]) {
     fprintf(stderr, "Implement a parallel tree build\n");
@@ -93,6 +94,7 @@ void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3
     for (int i = 0, s = tree->nodeCount; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k, ++s) {
+                //! @todo can be improved by working solely with the integers
                 const double x = pX + i * newSize[0];
                 const double y = pY + j * newSize[1];
                 const double z = pZ + k * newSize[2];
@@ -166,16 +168,6 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
     return true;
 }
 
-// @todo currently the easiest spot to save time in tree build and ngb search if we save the sizes instead of on demand
-void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
-    const int depth = key2Depth(key);
-    const double fac = 1.0 / (1 << depth);
-
-    for (int i = 0; i < 3; ++i) {
-        sideLength[i] = BOX[i] * fac;
-    }
-}
-
 void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
     unsigned int leafIndex = 0, oldLeafIndex = 0;
 
@@ -192,7 +184,7 @@ void setParticleRangesInTree(Particle *particles, const int npart, Tree *tree) {
 
 int findNGB(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, const double BOX[3]) {
     const unsigned int topNodeIndex = getTopNodeIndex(P, ipart, hsml, tree, BOX);
-    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, topNodeIndex, BOX);
+    const int found = findNeighboursInNode(P, ipart, hsml, tree, ngblist, topNodeIndex);
     return found;
 }
 
@@ -231,7 +223,7 @@ unsigned int getParentNode(unsigned int nodeIndex, const Tree* tree) {
 }
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
-                               unsigned int nodeIndex, const double BOX[3]) {
+                               unsigned int nodeIndex) {
     Morton node = tree->nodes[nodeIndex];
     unsigned int leafIndex = getFirstSubnodeInNode(nodeIndex, tree);
     while (! nodeIsLeaf(tree, leafIndex)) {
@@ -251,7 +243,7 @@ int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const 
         }
 
         leaf = tree->nodes[leafIndex];
-    } while(nodeContainsLeaf(node, leaf, BOX) && leafIndex != firstLeafIndex);
+    } while(nodeContainsLeaf(node, leaf) && leafIndex != firstLeafIndex);
 
     return found;
 }
@@ -292,23 +284,14 @@ unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree) {
     return tree->nextNodes[leafIndex];
 }
 
-// @todo Inefficient?? Biggest bottleneck in ngb search atm
-bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]) {
-    double nodeSideLength[3];
-    getNodeSize(nodeSideLength, node, BOX);
-
-    // @todo this block of coord with the transformations costs us the runtime
-    double x, y, z;
-    key2Coord(node, &x, &y, &z, BOX);
-    x += nodeSideLength[0];
-    y += nodeSideLength[1];
-    z += nodeSideLength[2];
-    Morton nextNode = coord2Key(x, y, z, BOX);
+// @todo Biggest bottleneck in ngb search (previously?)
+bool nodeContainsLeaf(Morton node, Morton leaf) {
+    Morton nextNode = translateToNextKey(node);
 
     // nextNode only makes sense if we do not span until the end of the box
-    bool xRoot = (x == BOX[0]);
-    bool yRoot = (y == BOX[1]);
-    bool zRoot = (z == BOX[2]);
+    bool xRoot = isLastCoordInDimension(node.x, node.level);
+    bool yRoot = isLastCoordInDimension(node.y, node.level);
+    bool zRoot = isLastCoordInDimension(node.z, node.level);
 
     //if lower corner of leaf is smaller than higher corner of node bigger or equal than lower corner then it is inside
     if (!xRoot && (leaf.x < node.x || leaf.x >= nextNode.x)) {

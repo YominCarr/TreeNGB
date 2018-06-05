@@ -28,3 +28,34 @@ COORD translateCoordFromDouble(const double c, const double box) {
 double translateCoordToDouble(const COORD c, const double box) {
     return c * box / (1 << MAXLEVEL);
 }
+
+// @todo currently the easiest spot to save time in tree build and ngb search if we save the sizes instead of on demand
+void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
+    const int depth = key2Depth(key);
+    const double fac = 1.0 / (1 << depth);
+
+    for (int i = 0; i < 3; ++i) {
+        sideLength[i] = BOX[i] * fac;
+    }
+}
+
+Morton translateToNextKey(const Morton key) {
+    Morton newKey;
+
+    newKey.x = translateToNextCoord(key.x, key.level);
+    newKey.y = translateToNextCoord(key.y, key.level);
+    newKey.z = translateToNextCoord(key.z, key.level);
+    newKey.level = key.level;
+
+    return newKey;
+}
+
+COORD translateToNextCoord(const COORD c, const unsigned int level) {
+    return c + (1 << (MAXLEVEL - level));
+}
+
+bool isLastCoordInDimension(const COORD c, const unsigned int level) {
+    const unsigned int max = (1 << MAXLEVEL);
+    const unsigned int difference = (1 << (MAXLEVEL - level));
+    return c == max - difference;
+}

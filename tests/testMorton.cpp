@@ -101,3 +101,56 @@ TEST_F(TestMorton, coordKeyLoop) {
     ASSERT_NEAR(y, y2, 0.0001 * y);
     ASSERT_NEAR(z, z2, 0.0001 * z);
 }
+
+TEST_F(TestMorton, nodeSizeCalculation) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+    double sideLength[3];
+    Morton key;
+
+    key.level = 0;
+    getNodeSize(sideLength, key, BOX);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(BOX[i], sideLength[i]) << " at i = " << i;
+    }
+
+    key.level = 1;
+    getNodeSize(sideLength, key, BOX);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(0.5*BOX[i], sideLength[i]) << " at i = " << i;
+    }
+}
+
+TEST_F(TestMorton, nextNodeCalculation) {
+    Morton oldNode;
+    oldNode.key = drand48() * std::numeric_limits<uint64_t>::max();
+
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    double nodeSideLength[3];
+    getNodeSize(nodeSideLength, oldNode, BOX);
+    double x, y, z;
+    key2Coord(oldNode, &x, &y, &z, BOX);
+    x += nodeSideLength[0];
+    y += nodeSideLength[1];
+    z += nodeSideLength[2];
+    Morton expectedNewNode = coord2Key(x, y, z, BOX);
+
+    Morton newNode = translateToNextKey(oldNode);
+
+    ASSERT_EQ(expectedNewNode.key, newNode.key);
+}
+
+TEST_F(TestMorton, lastCoordInDimensionCheck) {
+    const double BOX[3] = {1.0, 1.0, 1.0};
+
+    Morton node = coord2Key(0.0, 0.25, 0.75, BOX);
+
+    ASSERT_TRUE(isLastCoordInDimension(node.x, 0));
+    ASSERT_FALSE(isLastCoordInDimension(node.x, 1));
+
+    ASSERT_FALSE(isLastCoordInDimension(node.y, 2));
+    ASSERT_FALSE(isLastCoordInDimension(node.y, 3));
+
+    ASSERT_TRUE(isLastCoordInDimension(node.z, 2));
+    ASSERT_FALSE(isLastCoordInDimension(node.z, 3));
+}

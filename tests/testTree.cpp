@@ -98,24 +98,6 @@ TEST_F(TestTree, treeInitialization)
     );
 }
 
-TEST_F(TestTree, nodeSizeCalculation) {
-    const double BOX[3] = {1.0, 1.0, 1.0};
-    double sideLength[3];
-    Morton key;
-
-    key.level = 0;
-    getNodeSize(sideLength, key, BOX);
-    for (int i = 0; i < 3; ++i) {
-        ASSERT_EQ(BOX[i], sideLength[i]) << " at i = " << i;
-    }
-
-    key.level = 1;
-    getNodeSize(sideLength, key, BOX);
-    for (int i = 0; i < 3; ++i) {
-        ASSERT_EQ(0.5*BOX[i], sideLength[i]) << " at i = " << i;
-    }
-}
-
 TEST_F(TestTree, particleInRootNode) {
     const double BOX[3] = {1.0, 1.0, 1.0};
 
@@ -393,26 +375,26 @@ TEST_F(TestTree, leafInsideNode) {
 
     Morton leaf = coord2Key(0.0, 0.0, 0.0, BOX);
     leaf.level = 3;
-    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf));
 
     leaf = coord2Key(0.0, 0.6, 0.6, BOX);
     leaf.level = 3;
-    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf));
 
     leaf = coord2Key(0.5, 0.8, 0.6, BOX);
     leaf.level = 3;
-    ASSERT_FALSE(nodeContainsLeaf(node, leaf, BOX));
+    ASSERT_FALSE(nodeContainsLeaf(node, leaf));
 
     leaf = coord2Key(0.5, 0.6, 0.6, BOX);
     leaf.level = 3;
-    ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
+    ASSERT_TRUE(nodeContainsLeaf(node, leaf));
 
     node = coord2Key(0.0, 0.0, 0.0, BOX);
     node.level = 0;
 
     leaf = coord2Key(0.0, 0.0, 0.25, BOX);
     leaf.level = 2;
-    ASSERT_TRUE(nodeContainsLeaf(node, leaf, BOX));
+    ASSERT_TRUE(nodeContainsLeaf(node, leaf));
 }
 
 TEST_F(TestTree, neighbourFindingInLeaf)
@@ -515,7 +497,7 @@ TEST_F(TestTree, neighbourFindingInNode) {
     int ngblist[NGBMAX];
     int found;
     unsigned int nodeIndex = getRootNode(tree);
-    ASSERT_NO_FATAL_FAILURE(found = findNeighboursInNode(P, sort[0], 0.2, &tree, ngblist, nodeIndex, BOX););
+    ASSERT_NO_FATAL_FAILURE(found = findNeighboursInNode(P, sort[0], 0.2, &tree, ngblist, nodeIndex););
 
     ASSERT_EQ(3, found);
 

@@ -41,7 +41,6 @@ bool treeHasSpaceForSplittingOnce(Tree* tree, int newDepth);
 unsigned int findLeafForPosition(const double x, const double y, const double z, const Tree *tree, const double BOX[3]);
 bool nodeIsLeaf(const Tree *tree, unsigned int leaf);
 bool coordInsideNode(const double x, const double y, const double z, const Morton key, const double BOX[3]);
-void getNodeSize(double* sideLength, const Morton key, const double BOX[3]);
 
 void splitNode(Particle *P, const unsigned int l, Tree *tree, const double BOX[3]);
 unsigned int assignParticleToTree(Particle *P, int ipart, Tree *tree, const double BOX[3]);
@@ -60,11 +59,11 @@ void nodeToBox(Morton node, double* lowerCoords, double* sideLength, const doubl
 unsigned int getParentNode(unsigned int nodeIndex, const Tree *tree);
 
 int findNeighboursInNode(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist,
-                               unsigned int node, const double BOX[3]);
+                               unsigned int node);
 
 unsigned int getFirstSubnodeInNode(unsigned int nodeIndex, const Tree *tree);
 unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree);
-bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]);
+bool nodeContainsLeaf(Morton node, Morton leaf);
 
 int findNeighboursInLeaf(Particle *P, const int ipart, const double hsml, const Tree *tree, int *ngblist, int ingb,
                          unsigned int leafIndex);
