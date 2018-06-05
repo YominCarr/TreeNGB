@@ -22,6 +22,6 @@ list(APPEND TEST_SOURCES "allTests.cpp")
 add_executable (TreeNGB-tests ${SOURCE_FILES} ${TEST_SOURCES})
 target_link_libraries (TreeNGB-tests gmock gtest)
 
-add_custom_target(TreeNGB-profile COMMAND pwd COMMAND valgrind --tool=callgrind ./TreeNGB-tests WORKING_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}" DEPENDS TreeNGB-tests)
+add_custom_target(TreeNGB-profile COMMAND pwd COMMAND valgrind --tool=callgrind ./TreeNGB-tests --gtest_filter=*complexNeighbourFindingAgainstBruteForce* WORKING_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}" DEPENDS TreeNGB-tests)
 
 message(STATUS ${SOURCE_FILES})
