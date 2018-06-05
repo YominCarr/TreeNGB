@@ -166,10 +166,11 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
     return true;
 }
 
+// @todo currently the easiest spot to save time in tree build and ngb search if we save the sizes instead of on demand
 void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
     const int depth = key2Depth(key);
     const double fac = 1.0 / (1 << depth);
-    
+
     for (int i = 0; i < 3; ++i) {
         sideLength[i] = BOX[i] * fac;
     }
@@ -291,11 +292,12 @@ unsigned int getNextLeaf(unsigned int leafIndex, const Tree *tree) {
     return tree->nextNodes[leafIndex];
 }
 
-// @todo all this seems a bit inefficient, can I do better?
+// @todo Inefficient?? Biggest bottleneck in ngb search atm
 bool nodeContainsLeaf(Morton node, Morton leaf, const double BOX[3]) {
     double nodeSideLength[3];
     getNodeSize(nodeSideLength, node, BOX);
 
+    // @todo this block of coord with the transformations costs us the runtime
     double x, y, z;
     key2Coord(node, &x, &y, &z, BOX);
     x += nodeSideLength[0];
