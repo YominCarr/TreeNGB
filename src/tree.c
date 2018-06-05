@@ -167,8 +167,11 @@ bool coordInsideNode(const double x, const double y, const double z, const Morto
 }
 
 void getNodeSize(double* sideLength, const Morton key, const double BOX[3]) {
+    const int depth = key2Depth(key);
+    const double fac = 1.0 / (1 << depth);
+    
     for (int i = 0; i < 3; ++i) {
-        sideLength[i] = BOX[i] / pow(2.0, key2Depth(key));
+        sideLength[i] = BOX[i] * fac;
     }
 }
 
